@@ -23,6 +23,7 @@ const messages = defineMessages({
   home_timeline: { id: 'tabs_bar.home', defaultMessage: 'Home' },
   notifications: { id: 'tabs_bar.notifications', defaultMessage: 'Notifications' },
   public: { id: 'navigation_bar.public_timeline', defaultMessage: 'Federated timeline' },
+  wfchashtag: { id: 'navigation_bar.wfchashtag_timeline', defaultMessage: 'Hashtag timeline' },
   community: { id: 'navigation_bar.community_timeline', defaultMessage: 'Local timeline' },
   preferences: { id: 'navigation_bar.preferences', defaultMessage: 'Preferences' },
   logout: { id: 'navigation_bar.logout', defaultMessage: 'Logout' },
@@ -106,6 +107,9 @@ class Compose extends React.PureComponent {
           )}
           {!columns.some(column => column.get('id') === 'COMMUNITY') && (
             <Link to='/timelines/public/local' className='drawer__tab' title={intl.formatMessage(messages.community)} aria-label={intl.formatMessage(messages.community)}><Icon id='users' fixedWidth /></Link>
+          )}
+          {!columns.some(column => column.get('id') === 'WFCHASHTAG') && (
+            <Link to='/timelines/wfchashtag' className='drawer__tab' title={intl.formatMessage(messages.wfchashtag)} aria-label={intl.formatMessage(messages.wfchashtag)}><Icon id='hashtag' fixedWidth /></Link>
           )}
           {!columns.some(column => column.get('id') === 'PUBLIC') && (
             <Link to='/timelines/public' className='drawer__tab' title={intl.formatMessage(messages.public)} aria-label={intl.formatMessage(messages.public)}><Icon id='globe' fixedWidth /></Link>
