@@ -359,6 +359,8 @@
   "privacy.private.short": "フォロワー限定",
   "privacy.public.long": "誰でも閲覧可、公開TLに表示",
   "privacy.public.short": "公開",
+  "privacy.unlistedpublic.long": "誰でも閲覧可、連合先TLに非表示",
+  "privacy.unlistedpublic.short": "未配送",
   "privacy.unlisted.long": "誰でも閲覧可、公開TLに非表示",
   "privacy.unlisted.short": "未収載",
   "refresh": "更新",

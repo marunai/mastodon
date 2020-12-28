@@ -172,10 +172,8 @@ export function submitCompose(routerHistory) {
       if (response.data.visibility !== 'direct') {
         insertIfOnline('home');
       }
-
-      if (response.data.in_reply_to_id === null && response.data.visibility === 'public') {
+      if (response.data.in_reply_to_id === null && response.data.visibility === 'public' || response.data.visibility === 'unlistedpublic') {
         insertIfOnline('community');
-        insertIfOnline('public');
         insertIfOnline(`account:${response.data.account.id}`);
       }
     }).catch(function (error) {
