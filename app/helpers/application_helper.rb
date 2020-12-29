@@ -87,7 +87,7 @@ module ApplicationHelper
   def visibility_icon(status)
     if status.public_visibility?
       fa_icon('globe', title: I18n.t('statuses.visibilities.public'))
-    elsif status.unlisted_visibility?
+    elsif status.undistibuted_visibility?
       fa_icon('users', title: I18n.t('statuses.visibilities.undistributed'))
     elsif status.unlisted_visibility?
       fa_icon('unlock', title: I18n.t('statuses.visibilities.unlisted'))
