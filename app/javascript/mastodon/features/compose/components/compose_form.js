@@ -28,6 +28,8 @@ const messages = defineMessages({
   spoiler_placeholder: { id: 'compose_form.spoiler_placeholder', defaultMessage: 'Write your warning here' },
   publish: { id: 'compose_form.publish', defaultMessage: 'Toot' },
   publishLoud: { id: 'compose_form.publish_loud', defaultMessage: '{publish}!' },
+  publishWfcHashtag: { id: 'compose_form.publish-wfchashtag', defaultMessage: '#Toot' },
+  publishLoudWfcHashtag: { id: 'compose_form.publish_loud-wfchashtag', defaultMessage: '{publish}!' },
 });
 
 export default @injectIntl
@@ -86,7 +88,7 @@ class ComposeForm extends ImmutablePureComponent {
     const fulltext = this.getFulltextForCharacterCounting();
     const isOnlyWhitespace = fulltext.length !== 0 && fulltext.trim().length === 0;
 
-    return !(isSubmitting || isUploading || isChangingUpload || length(fulltext) > 500 || (isOnlyWhitespace && !anyMedia));
+    return !(isSubmitting || isUploading || isChangingUpload || length(fulltext) > 480 || (isOnlyWhitespace && !anyMedia));
   }
 
   handleSubmit = () => {
@@ -100,6 +102,20 @@ class ComposeForm extends ImmutablePureComponent {
       return;
     }
 
+    this.props.onSubmit(this.context.router ? this.context.router.history : null);
+  }
+
+  handleSubmitWfcHashtag = () => {
+    if (this.props.text !== this.autosuggestTextarea.textarea.value) {
+      // Something changed the text inside the textarea (e.g. browser extensions like Grammarly)
+      // Update the state to match the current text
+      this.props.onChange(this.autosuggestTextarea.textarea.value);
+    }
+
+    if (!this.canSubmit()) {
+      return;
+    }
+    this.props.onChange(this.autosuggestTextarea.textarea.value+'\n#worstfriendschat');
     this.props.onSubmit(this.context.router ? this.context.router.history : null);
   }
 
@@ -189,11 +205,14 @@ class ComposeForm extends ImmutablePureComponent {
     const { intl, onPaste, showSearch } = this.props;
     const disabled = this.props.isSubmitting;
     let publishText = '';
+    let publishTextWfcHashtag = '';
 
     if (this.props.privacy === 'private' || this.props.privacy === 'direct') {
       publishText = <span className='compose-form__publish-private'><Icon id='lock' /> {intl.formatMessage(messages.publish)}</span>;
+      publishTextWfcHashtag = <span className='compose-form__publish-private'><Icon id='lock' /> {intl.formatMessage(messages.publishWfcHashtag)}</span>;
     } else {
       publishText = this.props.privacy !== 'unlisted' ? intl.formatMessage(messages.publishLoud, { publish: intl.formatMessage(messages.publish) }) : intl.formatMessage(messages.publish);
+      publishTextWfcHashtag = this.props.privacy !== 'unlisted' ? intl.formatMessage(messages.publishLoudWfcHashtag, { publish: intl.formatMessage(messages.publishWfcHashtag) }) : intl.formatMessage(messages.publishWfcHashtag);
     }
 
     return (
@@ -249,11 +268,12 @@ class ComposeForm extends ImmutablePureComponent {
             <PrivacyDropdownContainer />
             <SpoilerButtonContainer />
           </div>
-          <div className='character-counter__wrapper'><CharacterCounter max={500} text={this.getFulltextForCharacterCounting()} /></div>
+          <div className='character-counter__wrapper'><CharacterCounter max={480} text={this.getFulltextForCharacterCounting()} /></div>
         </div>
 
         <div className='compose-form__publish'>
           <div className='compose-form__publish-button-wrapper'><Button text={publishText} onClick={this.handleSubmit} disabled={!this.canSubmit()} block /></div>
+          <div className='compose-form__publish-wfchashtag-button-wrapper'><Button text={publishTextWfcHashtag} onClick={this.handleSubmitWfcHashtag} disabled={!this.canSubmit()} block /></div>
         </div>
       </div>
     );
