@@ -50,13 +50,13 @@
   cursor: pointer;
   display: inline-block;
   font-family: inherit;
-  font-size: 14px;
+  font-size: 10px;
   font-weight: 500;
   height: 36px;
   letter-spacing: 0;
   line-height: 36px;
   overflow: hidden;
-  padding: 0 16px;
+  padding: 0 12px;
   position: relative;
   text-align: center;
   text-transform: uppercase;
@@ -741,21 +741,21 @@
     flex: 0 0 auto;
 
     .compose-form__reaction-shiitake-button-wrapper {
-      overflow: hidden;
+      overflow: visible;
       padding-top: 10px;
     }
     .compose-form__reaction-matsutake-button-wrapper {
-      overflow: hidden;
+      overflow: visible;
       padding-top: 10px;
       margin-left: 2px;
     }
     .compose-form__reaction-anago-button-wrapper {
-      overflow: hidden;
+      overflow: visible;
       padding-top: 10px;
       margin-left: 2px;
     }
     .compose-form__reaction-unagi-button-wrapper {
-      overflow: hidden;
+      overflow: visible;
       padding-top: 10px;
       margin-left: 2px;
     }
