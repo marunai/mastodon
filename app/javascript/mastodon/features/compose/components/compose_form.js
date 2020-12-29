@@ -119,6 +119,23 @@ class ComposeForm extends ImmutablePureComponent {
     this.props.onSubmit(this.context.router ? this.context.router.history : null);
   }
 
+  handleSubmitShiitake = () => {
+    this.props.onChange('しいたけ');
+    this.props.onSubmit(this.context.router ? this.context.router.history : null);
+  }
+  handleSubmitMatsutake = () => {
+    this.props.onChange('まつたけ');
+    this.props.onSubmit(this.context.router ? this.context.router.history : null);
+  }
+  handleSubmitAnago = () => {
+    this.props.onChange('あなご');
+    this.props.onSubmit(this.context.router ? this.context.router.history : null);
+  }
+  handleSubmitUnagi = () => {
+    this.props.onChange('うなぎ');
+    this.props.onSubmit(this.context.router ? this.context.router.history : null);
+  }
+
   onSuggestionsClearRequested = () => {
     this.props.onClearSuggestions();
   }
@@ -274,6 +291,12 @@ class ComposeForm extends ImmutablePureComponent {
         <div className='compose-form__publish'>
           <div className='compose-form__publish-button-wrapper'><Button text={publishText} onClick={this.handleSubmit} disabled={!this.canSubmit()} block /></div>
           <div className='compose-form__publish-wfchashtag-button-wrapper'><Button text={publishTextWfcHashtag} onClick={this.handleSubmitWfcHashtag} disabled={!this.canSubmit()} block /></div>
+        </div>
+        <div className='compose-form__reaction'>
+          <div className='compose-form__reaction-shiitake-button-wrapper'><Button text={'しいたけ'} onClick={this.handleSubmitShiitake} disabled={!this.canSubmit()} block /></div>
+          <div className='compose-form__reaction-matsutake-button-wrapper'><Button text={'まつたけ'} onClick={this.handleSubmitMatsutake} disabled={!this.canSubmit()} block /></div>
+          <div className='compose-form__reaction-anago-button-wrapper'><Button text={'あなご'} onClick={this.handleSubmitAnago} disabled={!this.canSubmit()} block /></div>
+          <div className='compose-form__reaction-unagi-button-wrapper'><Button text={'うなぎ'} onClick={this.handleSubmitUnagi} disabled={!this.canSubmit()} block /></div>
         </div>
       </div>
     );
