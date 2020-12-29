@@ -12,8 +12,8 @@ import Icon from 'mastodon/components/icon';
 const messages = defineMessages({
   public_short: { id: 'privacy.public.short', defaultMessage: 'Public' },
   public_long: { id: 'privacy.public.long', defaultMessage: 'Visible for all, shown in public timelines' },
-  unlistedpublic_short: { id: 'privacy.unlistedpublic.short', defaultMessage: 'Local' },
-  unlistedpublic_long: { id: 'privacy.unlistedpublic.long', defaultMessage: 'Visible for all, but not in federation' },
+  undistributed_short: { id: 'privacy.undistributed.short', defaultMessage: 'Undistributed' },
+  undistributed_long: { id: 'privacy.undistributed.long', defaultMessage: 'Visible for all, but not in federation' },
   unlisted_short: { id: 'privacy.unlisted.short', defaultMessage: 'Unlisted' },
   unlisted_long: { id: 'privacy.unlisted.long', defaultMessage: 'Visible for all, but not in public timelines' },
   private_short: { id: 'privacy.private.short', defaultMessage: 'Followers-only' },
@@ -236,7 +236,7 @@ class PrivacyDropdown extends React.PureComponent {
 
     this.options = [
       { icon: 'globe', value: 'public', text: formatMessage(messages.public_short), meta: formatMessage(messages.public_long) },
-      { icon: 'users', value: 'unlistedpublic', text: formatMessage(messages.unlistedpublic_short), meta: formatMessage(messages.unlistedpublic_long) },
+      { icon: 'users', value: 'undistributed', text: formatMessage(messages.undistributed_short), meta: formatMessage(messages.undistributed_long) },
       { icon: 'unlock', value: 'unlisted', text: formatMessage(messages.unlisted_short), meta: formatMessage(messages.unlisted_long) },
       { icon: 'lock', value: 'private', text: formatMessage(messages.private_short), meta: formatMessage(messages.private_long) },
       { icon: 'envelope', value: 'direct', text: formatMessage(messages.direct_short), meta: formatMessage(messages.direct_long) },

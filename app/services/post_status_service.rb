@@ -26,7 +26,7 @@ class PostStatusService < BaseService
     @options     = options
     @text        = @options[:text] || ''
     @in_reply_to = @options[:thread]
-    @apdistribution = true
+    @activitypub_distribution = true
 
     return idempotency_duplicate if idempotency_given? && idempotency_duplicate?
 
@@ -52,8 +52,9 @@ class PostStatusService < BaseService
     @sensitive    = (@options[:sensitive].nil? ? @account.user&.setting_default_sensitive : @options[:sensitive]) || @options[:spoiler_text].present?
     @text         = @options.delete(:spoiler_text) if @text.blank? && @options[:spoiler_text].present?
     @visibility   = @options[:visibility] || @account.user&.setting_default_privacy
-    @apdistribution = false if @visibility&.to_sym == :unlistedpublic
-    @visibility   = :public if @visibility&.to_sym == :unlistedpublic
+    # If @visibility is :undistributed, handle as public after setting the @activitypub_distribution to true
+    @activitypub_distribution = false if @visibility&.to_sym == :undistributed
+    @visibility   = :public if @visibility&.to_sym == :undistributed
     @visibility   = :unlisted if @visibility&.to_sym == :public && @account.silenced?
     @scheduled_at = @options[:scheduled_at]&.to_datetime
     @scheduled_at = nil if scheduled_in_the_past?
@@ -91,16 +92,12 @@ class PostStatusService < BaseService
   end
 
   def postprocess_status!
-    if @apdistribution
-      LinkCrawlWorker.perform_async(@status.id) unless @status.spoiler_text?
-      DistributionWorker.perform_async(@status.id)
+    LinkCrawlWorker.perform_async(@status.id) unless @status.spoiler_text?
+    DistributionWorker.perform_async(@status.id)
+    if @activitypub_distribution
       ActivityPub::DistributionWorker.perform_async(@status.id)
-      PollExpirationNotifyWorker.perform_at(@status.poll.expires_at, @status.poll.id) if @status.poll
-    else
-      LinkCrawlWorker.perform_async(@status.id) unless @status.spoiler_text?
-      DistributionWorker.perform_async(@status.id)
-      PollExpirationNotifyWorker.perform_at(@status.poll.expires_at, @status.poll.id) if @status.poll
     end
+    PollExpirationNotifyWorker.perform_at(@status.poll.expires_at, @status.poll.id) if @status.poll
   end
 
   def validate_media!
