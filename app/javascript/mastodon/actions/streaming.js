@@ -135,6 +135,15 @@ export const connectPublicStream = ({ onlyMedia, onlyRemote } = {}) =>
   connectTimelineStream(`public${onlyRemote ? ':remote' : ''}${onlyMedia ? ':media' : ''}`, `public${onlyRemote ? ':remote' : ''}${onlyMedia ? ':media' : ''}`);
 
 /**
+ * @param {Object} options
+ * @param {boolean} [options.onlyMedia]
+ * @param {boolean} [options.onlyRemote]
+ * @return {function(): void}
+ */
+export const connectRandomStream = ({ onlyMedia, onlyRemote } = {}) =>
+  connectTimelineStream(`random${onlyRemote ? ':remote' : ''}${onlyMedia ? ':media' : ''}`, `random${onlyRemote ? ':remote' : ''}${onlyMedia ? ':media' : ''}`);
+
+/**
  * @param {string} columnId
  * @param {string} tagName
  * @param {boolean} onlyLocal

@@ -18,6 +18,10 @@ export function PublicTimeline () {
   return import(/* webpackChunkName: "features/public_timeline" */'../../public_timeline');
 }
 
+export function RandomTimeline () {
+  return import(/* webpackChunkName: "features/random_timeline" */'../../random_timeline');
+}
+
 export function WfcHashtagTimeline () {
   return import(/* webpackChunkName: "features/wfchashtag_timeline" */'../../wfchashtag_timeline');
 }
