@@ -31,7 +31,7 @@ const mapStateToProps = (state, { columnId }) => {
 
 export default @connect(mapStateToProps)
 @injectIntl
-class PublicTimeline extends React.PureComponent {
+class RandomTimeline extends React.PureComponent {
 
   static contextTypes = {
     router: PropTypes.object,
@@ -74,8 +74,8 @@ class PublicTimeline extends React.PureComponent {
   componentDidMount () {
     const { dispatch, onlyMedia, onlyRemote } = this.props;
 
-    dispatch(expandRandomTimeline());
-    this.disconnect = dispatch(connectRandomStream());
+    dispatch(expandRandomTimeline({ onlyMedia, onlyRemote }));
+    this.disconnect = dispatch(connectRandomStream({ onlyMedia, onlyRemote }));
   }
 
   componentDidUpdate (prevProps) {
@@ -83,8 +83,8 @@ class PublicTimeline extends React.PureComponent {
       const { dispatch, onlyMedia, onlyRemote } = this.props;
 
       this.disconnect();
-      dispatch(expandRandomTimeline());
-      this.disconnect = dispatch(connectRandomStream());
+      dispatch(expandRandomTimeline({ onlyMedia, onlyRemote }));
+      this.disconnect = dispatch(connectRandomStream({ onlyMedia, onlyRemote }));
     }
   }
 
@@ -102,7 +102,7 @@ class PublicTimeline extends React.PureComponent {
   handleLoadMore = maxId => {
     const { dispatch, onlyMedia, onlyRemote } = this.props;
 
-    dispatch(expandRandomTimeline());
+    dispatch(expandRandomTimeline({ onlyMedia, onlyRemote }));
   }
 
   render () {

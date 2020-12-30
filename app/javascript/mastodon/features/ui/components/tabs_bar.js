@@ -13,6 +13,7 @@ export const links = [
   <NavLink className='tabs-bar__link' to='/timelines/public/local' data-preview-title-id='column.community' data-preview-icon='users' ><Icon id='users' fixedWidth /><FormattedMessage id='tabs_bar.local_timeline' defaultMessage='Local' /></NavLink>,
   <NavLink className='tabs-bar__link' exact to='/timelines/wfchashtag' data-preview-title-id='column.wfchashtag' data-preview-icon='hashtag' ><Icon id='hashtag' fixedWidth /><FormattedMessage id='tabs_bar.wfchashtag_timeline' defaultMessage='Hashtag' /></NavLink>,
   <NavLink className='tabs-bar__link' exact to='/timelines/public' data-preview-title-id='column.public' data-preview-icon='globe' ><Icon id='globe' fixedWidth /><FormattedMessage id='tabs_bar.federated_timeline' defaultMessage='Federated' /></NavLink>,
+  <NavLink className='tabs-bar__link' exact to='/timelines/random' data-preview-title-id='column.random' data-preview-icon='cloud' ><Icon id='cloud' fixedWidth /><FormattedMessage id='tabs_bar.random_timeline' defaultMessage='Random' /></NavLink>,
   <NavLink className='tabs-bar__link optional' to='/search' data-preview-title-id='tabs_bar.search' data-preview-icon='bell' ><Icon id='search' fixedWidth /><FormattedMessage id='tabs_bar.search' defaultMessage='Search' /></NavLink>,
   <NavLink className='tabs-bar__link' style={{ flexGrow: '0', flexBasis: '30px' }} to='/getting-started' data-preview-title-id='getting_started.heading' data-preview-icon='bars' ><Icon id='bars' fixedWidth /></NavLink>,
 ];
