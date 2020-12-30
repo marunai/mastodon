@@ -9,7 +9,7 @@ const mapStateToProps = (state, { columnId }) => {
   const index = columns.findIndex(c => c.get('uuid') === uuid);
 
   return {
-    settings: (uuid && index >= 0) ? columns.get(index).get('params') : state.getIn(['settings', 'random']),
+    settings: (uuid && index >= 0) ? columns.get(index).get('params') : state.getIn(['settings', 'public']),
   };
 };
 
@@ -19,7 +19,7 @@ const mapDispatchToProps = (dispatch, { columnId }) => {
       if (columnId) {
         dispatch(changeColumnParams(columnId, key, checked));
       } else {
-        dispatch(changeSetting(['random', ...key], checked));
+        dispatch(changeSetting(['public', ...key], checked));
       }
     },
   };

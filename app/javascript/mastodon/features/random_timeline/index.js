@@ -18,9 +18,9 @@ const mapStateToProps = (state, { columnId }) => {
   const uuid = columnId;
   const columns = state.getIn(['settings', 'columns']);
   const index = columns.findIndex(c => c.get('uuid') === uuid);
-  const onlyMedia = (columnId && index >= 0) ? columns.get(index).getIn(['params', 'other', 'onlyMedia']) : state.getIn(['settings', 'random', 'other', 'onlyMedia']);
-  const onlyRemote = (columnId && index >= 0) ? columns.get(index).getIn(['params', 'other', 'onlyRemote']) : state.getIn(['settings', 'random', 'other', 'onlyRemote']);
-  const timelineState = state.getIn(['timelines', `random${onlyMedia ? ':media' : ''}`]);
+  const onlyMedia = (columnId && index >= 0) ? columns.get(index).getIn(['params', 'other', 'onlyMedia']) : state.getIn(['settings', 'public', 'other', 'onlyMedia']);
+  const onlyRemote = (columnId && index >= 0) ? columns.get(index).getIn(['params', 'other', 'onlyRemote']) : state.getIn(['settings', 'public', 'other', 'onlyRemote']);
+  const timelineState = state.getIn(['timelines', `public${onlyMedia ? ':media' : ''}`]);
 
   return {
     hasUnread: !!timelineState && timelineState.get('unread') > 0,
@@ -39,7 +39,6 @@ class PublicTimeline extends React.PureComponent {
 
   static defaultProps = {
     onlyMedia: false,
-    onlyRemote: false,
   };
 
   static propTypes = {
@@ -59,7 +58,7 @@ class PublicTimeline extends React.PureComponent {
     if (columnId) {
       dispatch(removeColumn(columnId));
     } else {
-      dispatch(addColumn(onlyRemote ? 'REMOTE' : 'RANDOM', { other: { onlyMedia, onlyRemote } }));
+      dispatch(addColumn(onlyRemote ? 'REMOTE' : 'PUBLIC', { other: { onlyMedia, onlyRemote } }));
     }
   }
 
@@ -75,8 +74,8 @@ class PublicTimeline extends React.PureComponent {
   componentDidMount () {
     const { dispatch, onlyMedia, onlyRemote } = this.props;
 
-    dispatch(expandRandomTimeline({ onlyMedia, onlyRemote }));
-    this.disconnect = dispatch(connectRandomStream({ onlyMedia, onlyRemote }));
+    dispatch(expandRandomTimeline());
+    this.disconnect = dispatch(connectRandomStream());
   }
 
   componentDidUpdate (prevProps) {
@@ -84,8 +83,8 @@ class PublicTimeline extends React.PureComponent {
       const { dispatch, onlyMedia, onlyRemote } = this.props;
 
       this.disconnect();
-      dispatch(expandRandomTimeline({ onlyMedia, onlyRemote }));
-      this.disconnect = dispatch(connectRandomStream({ onlyMedia, onlyRemote }));
+      dispatch(expandRandomTimeline());
+      this.disconnect = dispatch(connectRandomStream());
     }
   }
 
@@ -103,7 +102,7 @@ class PublicTimeline extends React.PureComponent {
   handleLoadMore = maxId => {
     const { dispatch, onlyMedia, onlyRemote } = this.props;
 
-    dispatch(expandRandomTimeline({ maxId, onlyMedia, onlyRemote }));
+    dispatch(expandRandomTimeline());
   }
 
   render () {
@@ -113,7 +112,7 @@ class PublicTimeline extends React.PureComponent {
     return (
       <Column bindToDocument={!multiColumn} ref={this.setRef} label={intl.formatMessage(messages.title)}>
         <ColumnHeader
-          icon='globe'
+          icon='cloud'
           active={hasUnread}
           title={intl.formatMessage(messages.title)}
           onPin={this.handlePin}
@@ -130,7 +129,7 @@ class PublicTimeline extends React.PureComponent {
           onLoadMore={this.handleLoadMore}
           trackScroll={!pinned}
           scrollKey={`random_timeline-${columnId}`}
-          emptyMessage={<FormattedMessage id='empty_column.random' defaultMessage='There is nothing here! Write something publicly, or manually follow users from other servers to fill it up' />}
+          emptyMessage={<FormattedMessage id='empty_column.public' defaultMessage='There is nothing here! Write something publicly, or manually follow users from other servers to fill it up' />}
           shouldUpdateScroll={shouldUpdateScroll}
           bindToDocument={!multiColumn}
         />
