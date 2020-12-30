@@ -344,6 +344,7 @@ Rails.application.routes.draw do
         resource :public, only: :show, controller: :public
         resources :tag, only: :show
         resources :list, only: :show
+        resource :random, only: :show, controller: :random
       end
 
       resources :streaming, only: [:index]
