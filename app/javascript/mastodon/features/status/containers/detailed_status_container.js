@@ -20,6 +20,8 @@ import {
   deleteStatus,
   hideStatus,
   revealStatus,
+  hideQuote,
+  revealQuote,
 } from '../../../actions/statuses';
 import { initMuteModal } from '../../../actions/mutes';
 import { initBlockModal } from '../../../actions/blocks';
@@ -135,6 +137,14 @@ const mapDispatchToProps = (dispatch, { intl }) => ({
     dispatch(openModal('VIDEO', { media, options }));
   },
 
+  onOpenMediaQuote (media, index) {
+    dispatch(openModal('MEDIA', { media, index }));
+  },
+
+  onOpenVideoQuote (media, options) {
+    dispatch(openModal('VIDEO', { media, options }));
+  },
+
   onBlock (status) {
     const account = status.get('account');
     dispatch(initBlockModal(account));
@@ -164,6 +174,13 @@ const mapDispatchToProps = (dispatch, { intl }) => ({
     }
   },
 
+  onQuoteToggleHidden (status) {
+    if (status.get('quote_hidden')) {
+      dispatch(revealQuote(status.get('id')));
+    } else {
+      dispatch(hideQuote(status.get('id')));
+    }
+  },
 });
 
 export default injectIntl(connect(makeMapStateToProps, mapDispatchToProps)(DetailedStatus));
