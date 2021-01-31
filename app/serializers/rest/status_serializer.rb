@@ -25,6 +25,7 @@ class REST::StatusSerializer < ActiveModel::Serializer
   has_many :ordered_mentions, key: :mentions
   has_many :tags
   has_many :emojis, serializer: REST::CustomEmojiSerializer
+  has_many :reactions, serializer: REST::ReactionSerializer
 
   has_one :preview_card, key: :card, serializer: REST::PreviewCardSerializer
   has_one :preloadable_poll, key: :poll, serializer: REST::PollSerializer
@@ -90,6 +91,10 @@ class REST::StatusSerializer < ActiveModel::Serializer
     else
       current_user.account.favourited?(object)
     end
+  end
+
+  def reactions
+    object.reactions(current_user&.account)
   end
 
   def reblogged

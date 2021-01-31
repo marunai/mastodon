@@ -108,6 +108,26 @@ class ActivityPub::Activity::Undo < ActivityPub::Activity
 
     return if status.nil? || !status.account.local?
 
+    # marunai memo: read memo in like.rb.
+    # this is "nest hell"... fix later
+    if @object.has_key?('_misskey_reaction')
+      if @object.has_key?('tag')
+        unless @object['tag'][0]['id'].blank?
+          shortcode = @object['tag'][0]['name'].delete(':')
+          emoji = CustomEmoji.find_by(shortcode: shortcode, domain: @account.domain)
+          if @account.reacted_with_id?(status, shortcode, emoji.id)
+            reaction = status.emoji_reactions.where(account: @account, name: shortcode, custom_emoji_id: emoji.id).first
+            reaction&.destroy
+          end
+        end
+      else
+        if @account.reacted?(status, @object['_misskey_reaction'])
+          reaction = status.emoji_reactions.where(account: @account, name: @object['_misskey_reaction']).first
+          reaction&.destroy
+        end
+      end
+    end
+
     if @account.favourited?(status)
       favourite = status.favourites.where(account: @account).first
       favourite&.destroy

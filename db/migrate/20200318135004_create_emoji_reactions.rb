@@ -5,6 +5,7 @@ class CreateEmojiReactions < ActiveRecord::Migration[5.2]
       t.belongs_to :status, foreign_key: { on_delete: :cascade }
 
       t.string :name, null: false, default: ''
+      t.belongs_to :custom_emoji, foreign_key: { on_delete: :cascade }
 
       t.timestamps
     end
