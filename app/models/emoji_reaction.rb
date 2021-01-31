@@ -24,6 +24,6 @@ class EmojiReaction < ApplicationRecord
   validates_with EmojiReactionValidator
 
   def queue_publish
-#    UpdateEmojiReactionWorker.perform_async(status.id, name) unless status.destroyed?
+    PushUpdateWorker.perform_async(status.account.id, status_id) unless status.destroyed?
   end
 end
