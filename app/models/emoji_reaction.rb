@@ -25,6 +25,6 @@ class EmojiReaction < ApplicationRecord
 
   def queue_publish
     PushUpdateWorker.perform_async(status.account.id, status_id) unless status.destroyed?
-    PushUpdateWorker.perform_async(status.account.id, status_id) unless status.destroyed?
+    DistributionWorker.perform_async(status_id) unless status.destroyed?
   end
 end
