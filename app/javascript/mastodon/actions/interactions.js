@@ -41,6 +41,10 @@ export const UNBOOKMARK_REQUEST = 'UNBOOKMARKED_REQUEST';
 export const UNBOOKMARK_SUCCESS = 'UNBOOKMARKED_SUCCESS';
 export const UNBOOKMARK_FAIL    = 'UNBOOKMARKED_FAIL';
 
+export const REACTION_REQUEST = 'REACTION_REQUEST';
+export const REACTION_SUCCESS = 'REACTION_SUCCESS';
+export const REACTION_FAIL    = 'REACTION_FAIL';
+
 export function reblog(status) {
   return function (dispatch, getState) {
     dispatch(reblogRequest(status));
@@ -409,6 +413,44 @@ export function unpinFail(status, error) {
     type: UNPIN_FAIL,
     status,
     error,
+    skipLoading: true,
+  };
+};
+
+export function addreaction(status, name, domain) {
+  return function (dispatch, getState) {
+    dispatch(reactionRequest(status));
+
+    api(getState).post(`/api/v1/statuses/${status.get('id')}/reactions/${name}@${domain}`).then(function (response) {
+      dispatch(importFetchedStatus(response.data));
+      dispatch(reactionSuccess(status));
+    }).catch(function (error) {
+      dispatch(reactionFail(status, error));
+    });
+  };
+};
+
+export function reactionRequest(status) {
+  return {
+    type: REACTION_REQUEST,
+    status: status,
+    skipLoading: true,
+  };
+};
+
+export function reactionSuccess(status) {
+  return {
+    type: REACTION_SUCCESS,
+    status: status,
+    skipLoading: true,
+  };
+};
+
+export function reactionFail(status, error) {
+  return {
+    type: REACTION_FAIL,
+    status: status,
+    error: error,
     skipLoading: true,
   };
 };

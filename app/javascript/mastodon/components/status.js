@@ -140,6 +140,8 @@ class Status extends ImmutablePureComponent {
       available: PropTypes.bool,
     }),
     contextType: PropTypes.string,
+    addReaction: PropTypes.func.isRequired,
+    removeReaction: PropTypes.func.isRequired,
   };
 
   // Avoid checking props that are functions (and whose equality will always
@@ -355,16 +357,6 @@ class Status extends ImmutablePureComponent {
 
   handleRef = c => {
     this.node = c;
-  }
-
-  addReaction = (id, name) => {
-    console.log('test addReaction');
-    console.log(name);
-  }
-
-  removeReaction = (id, name) => {
-    console.log('test removeReaction');
-    console.log(name);
   }
 
   render () {
@@ -702,10 +694,9 @@ class Status extends ImmutablePureComponent {
             {media}
 
             <ReactionsBar
-              reactions={status.get('reactions')}
-              statusId={status.get('id')}
-              addReaction={this.addReaction}
-              removeReaction={this.removeReaction}
+              status={status}
+              addReaction={this.props.addReaction}
+              removeReaction={this.props.removeReaction}
               emojiMap={this.props.emojiMap}
             />
             <StatusActionBar scrollKey={scrollKey} status={status} account={account} {...other} />
@@ -720,16 +711,15 @@ class Status extends ImmutablePureComponent {
 class ReactionsBar extends ImmutablePureComponent {
 
   static propTypes = {
-    statusId: PropTypes.string.isRequired,
-    reactions: ImmutablePropTypes.list.isRequired,
+    status: ImmutablePropTypes.map.isRequired,
     addReaction: PropTypes.func.isRequired,
     removeReaction: PropTypes.func.isRequired,
     emojiMap: ImmutablePropTypes.map.isRequired,
   };
 
   handleEmojiPick = data => {
-    const { addReaction, statusId } = this.props;
-    addReaction(statusId, data.native.replace(/:/g, ''));
+    const { addReaction, status } = this.props;
+    addReaction(status, data.native.replace(/:/g, ''), "");
   }
 
   willEnter () {
@@ -741,7 +731,8 @@ class ReactionsBar extends ImmutablePureComponent {
   }
 
   render () {
-    const { reactions } = this.props;
+    const { status } = this.props;
+    const reactions = status.get("reactions")
     const visibleReactions = reactions.filter(x => x.get('count') > 0);
 
     const styles = visibleReactions.map(reaction => ({
@@ -759,7 +750,7 @@ class ReactionsBar extends ImmutablePureComponent {
                 key={key}
                 reaction={data}
                 style={{ transform: `scale(${style.scale})`, position: style.scale < 0.5 ? 'absolute' : 'static' }}
-                statusId={this.props.statusId}
+                status={this.props.status}
                 addReaction={this.props.addReaction}
                 removeReaction={this.props.removeReaction}
                 emojiMap={this.props.emojiMap}
@@ -776,7 +767,7 @@ class ReactionsBar extends ImmutablePureComponent {
 class Reaction extends ImmutablePureComponent {
 
   static propTypes = {
-    statusId: PropTypes.string.isRequired,
+    status: ImmutablePropTypes.map.isRequired,
     reaction: ImmutablePropTypes.map.isRequired,
     addReaction: PropTypes.func.isRequired,
     removeReaction: PropTypes.func.isRequired,
@@ -789,12 +780,12 @@ class Reaction extends ImmutablePureComponent {
   };
 
   handleClick = () => {
-    const { reaction, statusId, addReaction, removeReaction } = this.props;
+    const { reaction, status, addReaction, removeReaction } = this.props;
 
     if (reaction.get('me')) {
-      removeReaction(statusId, reaction.get('name'));
+      removeReaction(status, reaction.get('name'), reaction.get('domain'));
     } else {
-      addReaction(statusId, reaction.get('name'));
+      addReaction(status, reaction.get('name'), reaction.get('domain'));
     }
   }
 
