@@ -419,9 +419,9 @@ export function unpinFail(status, error) {
 
 export function addreaction(status, name, domain) {
   return function (dispatch, getState) {
-    dispatch(reactionRequest(status));
+   dispatch(reactionRequest(status));
 
-    api(getState).post(`/api/v1/statuses/${status.get('id')}/reactions/${name}@${domain}`).then(function (response) {
+    api(getState).put(`/api/v1/statuses/${status.get('id')}/reactions/${name}@${domain}`).then(function (response) {
       dispatch(importFetchedStatus(response.data));
       dispatch(reactionSuccess(status));
     }).catch(function (error) {
