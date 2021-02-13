@@ -12,25 +12,20 @@ class ReactionService < BaseService
     #fix siro!
     reaction = nil
 
+    reaction = EmojiReaction.find_by(account: account, status: status)
+
+    return reaction unless reaction.nil?
+
     custom_emoji = CustomEmoji.find_by(shortcode: shortcode, domain: domain)
 
     unless custom_emoji.nil?
-      reaction = EmojiReaction.find_by(account: account, status: status, name: shortcode, custom_emoji_id: custom_emoji.id)
-    else
-      reaction = EmojiReaction.find_by(account: account, status: status, name: shortcode)
-    end
-
-    return reaction unless reaction.nil?
-    Rails.logger.info "emoji_reaction create!!!"
-    unless custom_emoji.nil?
       reaction = EmojiReaction.create(account: account, status: status, name: shortcode, custom_emoji_id: custom_emoji.id)
-#      if status.account.activitypub?
-#        ActivityPub::DeliveryWorker.perform_async(build_reaction_unicode_json(reaction), reaction.account_id, status.account.inbox_url)
-#      end
+      if status.account.activitypub?
+        ActivityPub::DeliveryWorker.perform_async(build_reaction_custom_json(reaction), reaction.account_id, status.account.inbox_url)
+      end
     else
       reaction = EmojiReaction.create(account: account, status: status, name: shortcode)
       if status.account.activitypub?
-        Rails.logger.info "#{build_reaction_unicode_json(reaction)}"
         ActivityPub::DeliveryWorker.perform_async(build_reaction_unicode_json(reaction), reaction.account_id, status.account.inbox_url)
       end
     end
@@ -43,6 +38,36 @@ class ReactionService < BaseService
     like = serialize_payload(reaction, ActivityPub::LikeSerializer)
     like["content"] = "#{reaction.name}"
     like["_misskey_reaction"] = "#{reaction.name}"
+    Oj.dump(like)
+  end
+
+  def build_reaction_custom_json(reaction)
+    like = serialize_payload(reaction, ActivityPub::LikeSerializer)
+    like["content"] = ":#{reaction.name}:"
+    like["_misskey_reaction"] = ":#{reaction.name}:"
+
+    # ??? EmojiSerializer why return nil ??? 
+    # fix siro
+    custom_emoji = CustomEmoji.find(reaction.custom_emoji_id)
+
+    url = full_asset_url(custom_emoji.image.url(:original))
+    unless custom_emoji.image_remote_url.nil?
+      url = custom_emoji.image_remote_url
+    end
+
+    emoji = serialize_payload(custom_emoji, ActivityPub::EmojiSerializer)
+
+    like["tag"] = [{
+      "id" => ActivityPub::TagManager.instance.uri_for(custom_emoji),
+      "type" => "Emoji",
+      "name" => ":#{custom_emoji.shortcode}:",
+      "updated" => custom_emoji.updated_at.iso8601,
+      "icon" => {
+        "type" => "Image",
+        "mediaType" => custom_emoji.image.content_type,
+        "url" => url,
+      },
+    }]
     Oj.dump(like)
   end
 end
