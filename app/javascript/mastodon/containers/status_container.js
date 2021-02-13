@@ -240,21 +240,20 @@ const mapDispatchToProps = (dispatch, { intl }) => ({
     dispatch(deployPictureInPicture(status.get('id'), status.getIn(['account', 'id']), type, mediaProps));
   },
 
-<<<<<<< HEAD
   onQuoteToggleHidden (status) {
     if (status.get('quote_hidden')) {
       dispatch(revealQuote(status.get('id')));
     } else {
       dispatch(hideQuote(status.get('id')));
     }
-=======
+  },
+
   addReaction (status, name, domain) {
     dispatch(addreaction(status, name, domain));
   },
 
   removeReaction (status, name, domain) {
     console.log("status_container.js removeReaction");
->>>>>>> e7bf50fb1... addreaction app/javascript/mastodon/actions/interactions.js
   },
 
 });
