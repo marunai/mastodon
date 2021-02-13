@@ -756,7 +756,7 @@ class ReactionsBar extends ImmutablePureComponent {
                 emojiMap={this.props.emojiMap}
               />
             ))}
-            {visibleReactions.size < 8}
+            {visibleReactions.size < 8 && <EmojiPickerDropdown onPickEmoji={this.handleEmojiPick} button={<Icon id='plus' />} />}
           </div>
         )}
       </TransitionMotion>
@@ -783,7 +783,8 @@ class Reaction extends ImmutablePureComponent {
     const { reaction, status, addReaction, removeReaction } = this.props;
 
     if (reaction.get('me')) {
-      removeReaction(status, reaction.get('name'), reaction.get('domain'));
+      addReaction(status, reaction.get('name'), reaction.get('domain'));
+/*      removeReaction(status, reaction.get('name'), reaction.get('domain')); */
     } else {
       addReaction(status, reaction.get('name'), reaction.get('domain'));
     }
