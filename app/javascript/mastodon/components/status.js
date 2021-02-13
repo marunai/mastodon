@@ -335,6 +335,11 @@ class Status extends ImmutablePureComponent {
     this.handleToggleMediaVisibility();
   }
 
+  handleEmojiPick = data => {
+    addReaction(this.props.status, data.native.replace(/:/g, ''), "");
+  }
+
+
   _properStatus () {
     const { status } = this.props;
 
@@ -717,11 +722,6 @@ class ReactionsBar extends ImmutablePureComponent {
     emojiMap: ImmutablePropTypes.map.isRequired,
   };
 
-  handleEmojiPick = data => {
-    const { addReaction, status } = this.props;
-    addReaction(status, data.native.replace(/:/g, ''), "");
-  }
-
   willEnter () {
     return { scale: reduceMotion ? 1 : 0 };
   }
@@ -756,7 +756,7 @@ class ReactionsBar extends ImmutablePureComponent {
                 emojiMap={this.props.emojiMap}
               />
             ))}
-            {visibleReactions.size < 8 && <EmojiPickerDropdown onPickEmoji={this.handleEmojiPick} button={<Icon id='plus' />} />}
+            {visibleReactions.size < 8}
           </div>
         )}
       </TransitionMotion>
@@ -783,8 +783,7 @@ class Reaction extends ImmutablePureComponent {
     const { reaction, status, addReaction, removeReaction } = this.props;
 
     if (reaction.get('me')) {
-      addReaction(status, reaction.get('name'), reaction.get('domain'));
-/*      removeReaction(status, reaction.get('name'), reaction.get('domain')); */
+      removeReaction(status, reaction.get('name'), reaction.get('domain'));
     } else {
       addReaction(status, reaction.get('name'), reaction.get('domain'));
     }

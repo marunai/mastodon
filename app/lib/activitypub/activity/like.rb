@@ -19,7 +19,7 @@ class ActivityPub::Activity::Like < ActivityPub::Activity
         domain    = URI.split(uri)[2]
         emoji = CustomEmoji.find_by(shortcode: shortcode, domain: domain)
         if emoji.nil?
-          emoji ||= CustomEmoji.new(domain: @account.domain, shortcode: shortcode, uri: uri, image_remote_url: image_url)
+          emoji ||= CustomEmoji.new(domain: domain, shortcode: shortcode, uri: uri, image_remote_url: image_url)
           emoji.save
         end
         if image_url != emoji.image_remote_url
