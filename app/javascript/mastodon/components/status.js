@@ -21,7 +21,6 @@ import { displayMedia } from '../initial_state';
 import PictureInPicturePlaceholder from 'mastodon/components/picture_in_picture_placeholder';
 
 import { Map as ImmutableMap } from 'immutable';
-import EmojiPickerDropdown from 'mastodon/features/compose/containers/emoji_picker_dropdown_container';
 import unicodeMapping from 'mastodon/features/emoji/emoji_unicode_mapping_light';
 import TransitionMotion from 'react-motion/lib/TransitionMotion';
 import AnimatedNumber from 'mastodon/components/animated_number';

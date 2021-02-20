@@ -8,6 +8,8 @@ import { defineMessages, injectIntl } from 'react-intl';
 import ImmutablePureComponent from 'react-immutable-pure-component';
 import { me, isStaff } from '../initial_state';
 import classNames from 'classnames';
+import EmojiPickerDropdown from 'mastodon/features/compose/containers/emoji_picker_dropdown_container';
+import Icon from 'mastodon/components/icon';
 
 const messages = defineMessages({
   delete: { id: 'status.delete', defaultMessage: 'Delete' },
@@ -227,6 +229,11 @@ class StatusActionBar extends ImmutablePureComponent {
     }
   }
 
+  handleEmojiPick = data => {
+    const { addReaction, status } = this.props;
+    addReaction(status, data.native.replace(/:/g, ''), "");
+  }
+
   render () {
     const { status, relationship, intl, withDismiss, scrollKey } = this.props;
 
@@ -329,7 +336,9 @@ class StatusActionBar extends ImmutablePureComponent {
         <IconButton className='status__action-bar-button' title={replyTitle} icon={status.get('in_reply_to_account_id') === status.getIn(['account', 'id']) ? 'reply' : replyIcon} onClick={this.handleReplyClick} counter={status.get('replies_count')} obfuscateCount />
         <IconButton className={classNames('status__action-bar-button', { reblogPrivate })} disabled={!publicStatus && !reblogPrivate}  active={status.get('reblogged')} pressed={status.get('reblogged')} title={reblogTitle} icon='retweet' onClick={this.handleReblogClick} />
         <IconButton className='status__action-bar-button star-icon' animate active={status.get('favourited')} pressed={status.get('favourited')} title={intl.formatMessage(messages.favourite)} icon='star' onClick={this.handleFavouriteClick} />
+        <EmojiPickerDropdown className='status__action-bar-button smile-o-icon' onPickEmoji={this.handleEmojiPick} button={<Icon id='smile-o' />} />
         <IconButton className='status__action-bar-button' disabled={anonymousAccess || !publicStatus} title={!publicStatus ? intl.formatMessage(messages.cannot_quote) : intl.formatMessage(messages.quote)} icon='quote-right' onClick={this.handleQuoteClick} />
+
         {shareButton}
 
         <div className='status__action-bar-dropdown'>
