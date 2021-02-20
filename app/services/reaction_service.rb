@@ -10,13 +10,12 @@ class ReactionService < BaseService
     domain    = nil if domain.eql?("undefined")
 
     #fix siro!
-    reaction = nil
-
-    reaction = EmojiReaction.find_by(account: account, status: status)
-
-    return reaction unless reaction.nil?
 
     custom_emoji = CustomEmoji.find_by(shortcode: shortcode, domain: domain)
+
+    reaction = nil
+    reaction = EmojiReaction.find_by(account_id: account.id, status_id: status.id)
+    return reaction unless reaction.nil?
 
     unless custom_emoji.nil?
       reaction = EmojiReaction.create(account: account, status: status, name: shortcode, custom_emoji_id: custom_emoji.id)
@@ -46,7 +45,6 @@ class ReactionService < BaseService
     like["content"] = ":#{reaction.name}:"
     like["_misskey_reaction"] = ":#{reaction.name}:"
 
-    # ??? EmojiSerializer why return nil ??? 
     # fix siro
     custom_emoji = CustomEmoji.find(reaction.custom_emoji_id)
 
@@ -55,6 +53,7 @@ class ReactionService < BaseService
       url = custom_emoji.image_remote_url
     end
 
+    # ??? EmojiSerializer why return nil ??? 
     emoji = serialize_payload(custom_emoji, ActivityPub::EmojiSerializer)
 
     like["tag"] = [{

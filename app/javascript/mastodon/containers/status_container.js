@@ -18,6 +18,7 @@ import {
   pin,
   unpin,
   addreaction,
+  removereaction,
 } from '../actions/interactions';
 import {
   muteStatus,
@@ -253,7 +254,7 @@ const mapDispatchToProps = (dispatch, { intl }) => ({
   },
 
   removeReaction (status, name, domain) {
-    console.log("status_container.js removeReaction");
+    dispatch(removereaction(status, name, domain));
   },
 
 });
