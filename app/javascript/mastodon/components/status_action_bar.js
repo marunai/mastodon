@@ -242,6 +242,7 @@ class StatusActionBar extends ImmutablePureComponent {
     const anonymousAccess    = !me;
     const publicStatus       = ['public', 'unlisted'].includes(status.get('visibility'));
     const account            = status.get('account');
+    const localStatus        = (status.get('uri').split('/')[2] == 'worst-friends.chat') || (status.get('uri').split('/')[2] == 'misskey.io') || (status.get('uri').split('/')[2] == 'dev.worst-friends.chat');
 
     let menu = [];
 
@@ -331,15 +332,16 @@ class StatusActionBar extends ImmutablePureComponent {
     const shareButton = ('share' in navigator) && publicStatus && (
       <IconButton className='status__action-bar-button' title={intl.formatMessage(messages.share)} icon='share-alt' onClick={this.handleShareClick} />
     );
-
+    const reactionButton = localStatus && publicStatus && (
+      <ReactionPickerDropdown className='status__action-bar-button' onPickEmoji={this.handleEmojiPick} />
+    );
     return (
       <div className='status__action-bar'>
         <IconButton className='status__action-bar-button' title={replyTitle} icon={status.get('in_reply_to_account_id') === status.getIn(['account', 'id']) ? 'reply' : replyIcon} onClick={this.handleReplyClick} counter={status.get('replies_count')} obfuscateCount />
         <IconButton className={classNames('status__action-bar-button', { reblogPrivate })} disabled={!publicStatus && !reblogPrivate}  active={status.get('reblogged')} pressed={status.get('reblogged')} title={reblogTitle} icon='retweet' onClick={this.handleReblogClick} />
         <IconButton className='status__action-bar-button' disabled={anonymousAccess || !publicStatus} title={!publicStatus ? intl.formatMessage(messages.cannot_quote) : intl.formatMessage(messages.quote)} icon='quote-right' onClick={this.handleQuoteClick} />
         <IconButton className='status__action-bar-button star-icon' animate active={status.get('favourited')} pressed={status.get('favourited')} title={intl.formatMessage(messages.favourite)} icon='star' onClick={this.handleFavouriteClick} />
-        <ReactionPickerDropdown className='status__action-bar-button' onPickEmoji={this.handleEmojiPick} />
-
+        {reactionButton}
         {shareButton}
 
         <div className='status__action-bar-dropdown'>
