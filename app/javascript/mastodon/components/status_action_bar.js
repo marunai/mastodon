@@ -9,6 +9,8 @@ import ImmutablePureComponent from 'react-immutable-pure-component';
 import { me, isStaff } from '../initial_state';
 import classNames from 'classnames';
 
+import ReactionPickerDropdown from '../containers/reaction_picker_dropdown_container';
+
 const messages = defineMessages({
   delete: { id: 'status.delete', defaultMessage: 'Delete' },
   redraft: { id: 'status.redraft', defaultMessage: 'Delete & re-draft' },
@@ -78,6 +80,8 @@ class StatusActionBar extends ImmutablePureComponent {
     withDismiss: PropTypes.bool,
     scrollKey: PropTypes.string,
     intl: PropTypes.object.isRequired,
+    addReaction: PropTypes.func,
+    removeReaction: PropTypes.func,
   };
 
   // Avoid checking props that are functions (and whose equality will always
@@ -220,6 +224,11 @@ class StatusActionBar extends ImmutablePureComponent {
     }
   }
 
+  handleEmojiPick = data => {
+    const { addReaction, status } = this.props;
+    addReaction(status, data.native.replace(/:/g, ''), '');
+  }
+
   render () {
     const { status, relationship, intl, withDismiss, scrollKey } = this.props;
 
@@ -326,7 +335,7 @@ class StatusActionBar extends ImmutablePureComponent {
         <IconButton className='status__action-bar-button' title={replyTitle} icon={status.get('in_reply_to_account_id') === status.getIn(['account', 'id']) ? 'reply' : replyIcon} onClick={this.handleReplyClick} counter={status.get('replies_count')} obfuscateCount />
         <IconButton className={classNames('status__action-bar-button', { reblogPrivate })} disabled={!publicStatus && !reblogPrivate}  active={status.get('reblogged')} pressed={status.get('reblogged')} title={reblogTitle} icon='retweet' onClick={this.handleReblogClick} />
         <IconButton className='status__action-bar-button star-icon' animate active={status.get('favourited')} pressed={status.get('favourited')} title={intl.formatMessage(messages.favourite)} icon='star' onClick={this.handleFavouriteClick} />
-
+        <ReactionPickerDropdown className='status__action-bar-button' onPickEmoji={this.handleEmojiPick} />
         {shareButton}
 
         <div className='status__action-bar-dropdown'>
