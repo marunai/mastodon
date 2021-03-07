@@ -245,6 +245,19 @@ class Status < ApplicationRecord
     status_stat&.favourites_count || 0
   end
 
+  def reactions(account = nil)
+    records = begin
+      scope = emoji_reactions.group(:status_id, :name, :custom_emoji_id).order(Arel.sql('MIN(created_at) ASC'))
+      if account.nil?
+        scope.select('name, custom_emoji_id, count(*) as count, false as me')
+      else
+        scope.select("name, custom_emoji_id, count(*) as count, exists(select 1 from emoji_reactions r where r.account_id = #{account.id} and r.status_id = emoji_reactions.status_id and r.name = emoji_reactions.name) as me")
+      end
+    end
+    ActiveRecord::Associations::Preloader.new.preload(records, :custom_emoji)
+    records
+  end
+
   def increment_count!(key)
     update_status_stat!(key => public_send(key) + 1)
   end

@@ -228,6 +228,10 @@ module AccountInteractions
     status.proper.emoji_reactions.where(account: self, name: name).exists?
   end
 
+  def reacted_with_id?(status, name, id)
+    status.proper.emoji_reactions.where(account: self, name: name, custom_emoji_id: id).exists?
+  end
+
   def bookmarked?(status)
     status.proper.bookmarks.where(account: self).exists?
   end
