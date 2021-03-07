@@ -39,3 +39,4 @@ class ActivityPub::Activity::Like < ActivityPub::Activity
     favourite = original_status.favourites.create!(account: @account)
     NotifyService.new.call(original_status.account, :favourite, favourite)
   end
+end
