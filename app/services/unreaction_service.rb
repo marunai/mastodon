@@ -10,14 +10,16 @@ class UnreactionService < BaseService
 
     custom_emoji = CustomEmoji.find_by(shortcode: shortcode, domain: domain)
 
-    reaction = nil
     reaction = EmojiReaction.find_by(account: account, status: status, name: shortcode)
+
     return reaction if reaction.nil?
-    build_reaction_unicode_json(reaction)
+
+    # custom emoji
     unless custom_emoji.nil?
       if status.account.activitypub?
         ActivityPub::DeliveryWorker.perform_async(build_reaction_custom_json(reaction), reaction.account_id, status.account.inbox_url)
       end
+    # unicode emoji
     else
       if status.account.activitypub?
         ActivityPub::DeliveryWorker.perform_async(build_reaction_unicode_json(reaction), reaction.account_id, status.account.inbox_url)
@@ -30,12 +32,15 @@ class UnreactionService < BaseService
 
   private
 
-  #FIX SIRO
+  # Should be the same function "build_json"???
+  # Return including "_misskey_reaction"???
   def build_reaction_unicode_json(reaction)
     undo_like = serialize_payload(reaction, ActivityPub::UndoLikeSerializer)
     Oj.dump(undo_like)
   end
 
+  # Should be the same function "build_json"???
+  # Return including "_misskey_reaction"???
   def build_reaction_custom_json(reaction)
     undo_like = serialize_payload(reaction, ActivityPub::UndoLikeSerializer)
     Oj.dump(undo_like)

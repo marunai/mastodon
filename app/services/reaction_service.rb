@@ -9,19 +9,19 @@ class ReactionService < BaseService
     domain    = emoji.split("@")[1]
     domain    = nil if domain.eql?("undefined")
 
-    #FIX SIRO
     custom_emoji = CustomEmoji.find_by(shortcode: shortcode, domain: domain)
 
-    reaction = nil
     reaction = EmojiReaction.find_by(account_id: account.id, status_id: status.id)
 
     return reaction unless reaction.nil?
 
+    # custom emoji
     unless custom_emoji.nil?
       reaction = EmojiReaction.create(account: account, status: status, name: shortcode, custom_emoji_id: custom_emoji.id)
       if status.account.activitypub?
         ActivityPub::DeliveryWorker.perform_async(build_reaction_custom_json(reaction), reaction.account_id, status.account.inbox_url)
       end
+    # unicode emoji
     else
       reaction = EmojiReaction.create(account: account, status: status, name: shortcode)
       if status.account.activitypub?
@@ -33,6 +33,8 @@ class ReactionService < BaseService
 
   private 
 
+  # It is desirable to use Serializer...
+  # Should be the same function "build_json"???
   def build_reaction_unicode_json(reaction)
     like = serialize_payload(reaction, ActivityPub::LikeSerializer)
     like["content"] = "#{reaction.name}"
@@ -40,12 +42,13 @@ class ReactionService < BaseService
     Oj.dump(like)
   end
 
+  # It is desirable to use Serializer...
+  # Should be the same function "build_json"???
   def build_reaction_custom_json(reaction)
     like = serialize_payload(reaction, ActivityPub::LikeSerializer)
     like["content"] = ":#{reaction.name}:"
     like["_misskey_reaction"] = ":#{reaction.name}:"
 
-    #FIX SIRO
     custom_emoji = CustomEmoji.find(reaction.custom_emoji_id)
 
     url = full_asset_url(custom_emoji.image.url(:original))

@@ -17,10 +17,12 @@ class Api::V1::Statuses::ReactionsController < Api::BaseController
     domain    = params[:id].split("@")[1]
     domain    = nil if domain.eql?("undefined")
     custom_emoji = CustomEmoji.find_by(shortcode: shortcode, domain: domain)
+    # custom emoji
     unless custom_emoji.nil?
       if current_account.reacted_with_id?(@status, shortcode, custom_emoji.id)
         UnreactionWorker.perform_async(current_account.id, @status.id, params[:id])
       end
+    # unicode emoji
     else
       if current_account.reacted?(@status, shortcode)
         UnreactionWorker.perform_async(current_account.id, @status.id, params[:id])

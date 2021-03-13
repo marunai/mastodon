@@ -107,10 +107,10 @@ class ActivityPub::Activity::Undo < ActivityPub::Activity
 
     return if status.nil? || !status.account.local?
 
-    # FIX SIRO
-    if @object.has_key?('_misskey_reaction')
-      if @object.has_key?('tag')
-        unless @object['tag'][0]['id'].blank?
+    # Misskey Reaction
+    if @object['_misskey_reaction'].present?
+      # custom emoji
+      if @object['tag'].present? && @object['tag'][0]['id'].blank?
           shortcode = @object['tag'][0]['name'].delete(':')
           emoji = CustomEmoji.find_by(shortcode: shortcode, domain: @account.domain)
           if @account.reacted_with_id?(status, shortcode, emoji.id)
@@ -118,6 +118,7 @@ class ActivityPub::Activity::Undo < ActivityPub::Activity
             reaction&.destroy
           end
         end
+      # unicode emoji
       else
         if @account.reacted?(status, @object['_misskey_reaction'])
           reaction = status.emoji_reactions.where(account: @account, name: @object['_misskey_reaction']).first
