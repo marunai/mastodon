@@ -117,7 +117,6 @@ class ActivityPub::Activity::Undo < ActivityPub::Activity
             reaction = status.emoji_reactions.where(account: @account, name: shortcode, custom_emoji_id: emoji.id).first
             reaction&.destroy
           end
-        end
       # unicode emoji
       else
         if @account.reacted?(status, @object['_misskey_reaction'])
