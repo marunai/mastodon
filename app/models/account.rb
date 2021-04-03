@@ -27,7 +27,6 @@
 #  header_file_size              :integer
 #  header_updated_at             :datetime
 #  avatar_remote_url             :string
-#  subscription_expires_at       :datetime
 #  locked                        :boolean          default(FALSE), not null
 #  header_remote_url             :string           default(""), not null
 #  last_webfingered_at           :datetime
@@ -55,6 +54,8 @@
 #
 
 class Account < ApplicationRecord
+  self.ignored_columns = %w(subscription_expires_at)
+
   USERNAME_RE = /[a-z0-9_]+([a-z0-9_\.-]+[a-z0-9_]+)?/i
   MENTION_RE  = /(?<=^|[^\/[:word:]])@((#{USERNAME_RE})(?:@[[:word:]\.\-]+[a-z0-9]+)?)/i
 
@@ -93,7 +94,6 @@ class Account < ApplicationRecord
 
   scope :remote, -> { where.not(domain: nil) }
   scope :local, -> { where(domain: nil) }
-  scope :expiring, ->(time) { remote.where.not(subscription_expires_at: nil).where('subscription_expires_at < ?', time) }
   scope :partitioned, -> { order(Arel.sql('row_number() over (partition by domain)')) }
   scope :silenced, -> { where.not(silenced_at: nil) }
   scope :suspended, -> { where.not(suspended_at: nil) }
@@ -190,10 +190,6 @@ class Account < ApplicationRecord
     "acct:#{local_username_and_domain}"
   end
 
-  def subscribed?
-    subscription_expires_at.present?
-  end
-
   def searchable?
     !(suspended? || moved?)
   end
@@ -273,7 +269,7 @@ class Account < ApplicationRecord
   end
 
   def tags_as_strings=(tag_names)
-    hashtags_map = Tag.find_or_create_by_names(tag_names).each_with_object({}) { |tag, h| h[tag.name] = tag }
+    hashtags_map = Tag.find_or_create_by_names(tag_names).index_by(&:name)
 
     # Remove hashtags that are to be deleted
     tags.each do |tag|
@@ -385,15 +381,17 @@ class Account < ApplicationRecord
   end
 
   class Field < ActiveModelSerializers::Model
-    attributes :name, :value, :verified_at, :account, :errors
+    attributes :name, :value, :verified_at, :account
 
     def initialize(account, attributes)
-      @account     = account
-      @attributes  = attributes
-      @name        = attributes['name'].strip[0, string_limit]
-      @value       = attributes['value'].strip[0, string_limit]
-      @verified_at = attributes['verified_at']&.to_datetime
-      @errors      = {}
+      @original_field = attributes
+      string_limit = account.local? ? 255 : 2047
+      super(
+        account:     account,
+        name:        attributes['name'].strip[0, string_limit],
+        value:       attributes['value'].strip[0, string_limit],
+        verified_at: attributes['verified_at']&.to_datetime,
+      )
     end
 
     def verified?
@@ -415,22 +413,12 @@ class Account < ApplicationRecord
     end
 
     def mark_verified!
-      @verified_at = Time.now.utc
-      @attributes['verified_at'] = @verified_at
+      self.verified_at = Time.now.utc
+      @original_field['verified_at'] = verified_at
     end
 
     def to_h
-      { name: @name, value: @value, verified_at: @verified_at }
-    end
-
-    private
-
-    def string_limit
-      if account.local?
-        255
-      else
-        2047
-      end
+      { name: name, value: value, verified_at: verified_at }
     end
   end
 
@@ -516,7 +504,7 @@ class Account < ApplicationRecord
     def from_text(text)
       return [] if text.blank?
 
-      text.scan(MENTION_RE).map { |match| match.first.split('@', 2) }.uniq.map do |(username, domain)|
+      text.scan(MENTION_RE).map { |match| match.first.split('@', 2) }.uniq.filter_map do |(username, domain)|
         domain = begin
           if TagManager.instance.local_domain?(domain)
             nil
@@ -525,7 +513,7 @@ class Account < ApplicationRecord
           end
         end
         EntityCache.instance.mention(username, domain)
-      end.compact
+      end
     end
 
     private

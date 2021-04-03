@@ -2942,6 +2942,7 @@ a.account__display-name {
     flex: 0 0 auto;
     padding: 10px;
     padding-top: 20px;
+    z-index: 1;
 
     ul {
       margin-bottom: 10px;
@@ -4266,6 +4267,7 @@ a.status-card.compact:hover {
   border-radius: 4px;
   margin-left: 40px;
   overflow: hidden;
+  z-index: 2;
 
   &.top {
     transform-origin: 50% 100%;
@@ -4274,6 +4276,15 @@ a.status-card.compact:hover {
   &.bottom {
     transform-origin: 50% 0;
   }
+}
+
+.modal-root__container .privacy-dropdown {
+  flex-grow: 0;
+}
+
+.modal-root__container .privacy-dropdown__dropdown {
+  pointer-events: auto;
+  z-index: 9999;
 }
 
 .privacy-dropdown__option {
@@ -4519,6 +4530,7 @@ a.status-card.compact:hover {
   right: 0;
   bottom: 0;
   background: rgba($base-overlay-background, 0.7);
+  transition: background 0.5s;
 }
 
 .modal-root__container {
