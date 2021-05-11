@@ -111,12 +111,12 @@ class ActivityPub::Activity::Undo < ActivityPub::Activity
     if @object['_misskey_reaction'].present?
       # custom emoji
       if @object['tag'].present? && @object['tag'][0]['id'].blank?
-          shortcode = @object['tag'][0]['name'].delete(':')
-          emoji = CustomEmoji.find_by(shortcode: shortcode, domain: @account.domain)
-          if @account.reacted_with_id?(status, shortcode, emoji.id)
-            reaction = status.emoji_reactions.where(account: @account, name: shortcode, custom_emoji_id: emoji.id).first
-            reaction&.destroy
-          end
+        shortcode = @object['tag'][0]['name'].delete(':')
+        emoji = CustomEmoji.find_by(shortcode: shortcode, domain: @account.domain)
+        if @account.reacted_with_id?(status, shortcode, emoji.id)
+          reaction = status.emoji_reactions.where(account: @account, name: shortcode, custom_emoji_id: emoji.id).first
+          reaction&.destroy
+        end
       # unicode emoji
       else
         if @account.reacted?(status, @object['_misskey_reaction'])
