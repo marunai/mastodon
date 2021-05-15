@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import ImmutablePropTypes from 'react-immutable-proptypes';
-import { fetchFavouritedStatuses, expandFavouritedStatuses } from '../../actions/favourites';
+import { fetchEmojiReactionedStatuses, expandEmojiReactionedStatuses } from '../../actions/emoji_reactions';
 import Column from '../ui/components/column';
 import ColumnHeader from '../../components/column_header';
 import { addColumn, removeColumn, moveColumn } from '../../actions/columns';
@@ -12,18 +12,18 @@ import ImmutablePureComponent from 'react-immutable-pure-component';
 import { debounce } from 'lodash';
 
 const messages = defineMessages({
-  heading: { id: 'column.favourites', defaultMessage: 'Favourites' },
+  heading: { id: 'column.emoji_reactions', defaultMessage: 'EmojiReactions' },
 });
 
 const mapStateToProps = state => ({
-  statusIds: state.getIn(['status_lists', 'favourites', 'items']),
-  isLoading: state.getIn(['status_lists', 'favourites', 'isLoading'], true),
-  hasMore: !!state.getIn(['status_lists', 'favourites', 'next']),
+  statusIds: state.getIn(['status_lists', 'emoji_reactions', 'items']),
+  isLoading: state.getIn(['status_lists', 'emoji_reactions', 'isLoading'], true),
+  hasMore: !!state.getIn(['status_lists', 'emoji_reactions', 'next']),
 });
 
 export default @connect(mapStateToProps)
 @injectIntl
-class Favourites extends ImmutablePureComponent {
+class EmojiReactions extends ImmutablePureComponent {
 
   static propTypes = {
     dispatch: PropTypes.func.isRequired,
@@ -37,7 +37,7 @@ class Favourites extends ImmutablePureComponent {
   };
 
   componentWillMount () {
-    this.props.dispatch(fetchFavouritedStatuses());
+    this.props.dispatch(fetchEmojiReactionedStatuses());
   }
 
   handlePin = () => {
@@ -46,7 +46,7 @@ class Favourites extends ImmutablePureComponent {
     if (columnId) {
       dispatch(removeColumn(columnId));
     } else {
-      dispatch(addColumn('FAVOURITES', {}));
+      dispatch(addColumn('EMOJI_REACTIONS', {}));
     }
   }
 
@@ -64,14 +64,14 @@ class Favourites extends ImmutablePureComponent {
   }
 
   handleLoadMore = debounce(() => {
-    this.props.dispatch(expandFavouritedStatuses());
+    this.props.dispatch(expandEmojiReactionedStatuses());
   }, 300, { leading: true })
 
   render () {
     const { intl, shouldUpdateScroll, statusIds, columnId, multiColumn, hasMore, isLoading } = this.props;
     const pinned = !!columnId;
 
-    const emptyMessage = <FormattedMessage id='empty_column.favourited_statuses' defaultMessage="You don't have any favourite posts yet. When you favourite one, it will show up here." />;
+    const emptyMessage = <FormattedMessage id='empty_column.emoji_reactioned_statuses' defaultMessage="You don't have any reaction posts yet. When you reaction one, it will show up here." />;
 
     return (
       <Column bindToDocument={!multiColumn} ref={this.setRef} label={intl.formatMessage(messages.heading)}>
@@ -89,7 +89,7 @@ class Favourites extends ImmutablePureComponent {
         <StatusList
           trackScroll={!pinned}
           statusIds={statusIds}
-          scrollKey={`favourited_statuses-${columnId}`}
+          scrollKey={`emoji_reactioned_statuses-${columnId}`}
           hasMore={hasMore}
           isLoading={isLoading}
           onLoadMore={this.handleLoadMore}

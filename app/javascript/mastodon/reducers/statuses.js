@@ -6,7 +6,9 @@ import {
   UNFAVOURITE_SUCCESS,
   BOOKMARK_REQUEST,
   BOOKMARK_FAIL,
-} from '../actions/interactions';
+  REACTION_REQUEST,
+  REACTION_FAIL,
+  } from '../actions/interactions';
 import {
   STATUS_MUTE_SUCCESS,
   STATUS_UNMUTE_SUCCESS,
@@ -49,6 +51,10 @@ export default function statuses(state = initialState, action) {
     return state.get(action.status.get('id')) === undefined ? state : state.setIn([action.status.get('id'), 'bookmarked'], true);
   case BOOKMARK_FAIL:
     return state.get(action.status.get('id')) === undefined ? state : state.setIn([action.status.get('id'), 'bookmarked'], false);
+  case REACTION_REQUEST:
+    return state.get(action.status.get('id')) === undefined ? state : state.setIn([action.status.get('id'), 'emoji_reactioned'], true);
+  case REACTION_FAIL:
+    return state.get(action.status.get('id')) === undefined ? state : state.setIn([action.status.get('id'), 'emoji_reactioned'], false);
   case REBLOG_REQUEST:
     return state.setIn([action.status.get('id'), 'reblogged'], true);
   case REBLOG_FAIL:

@@ -289,10 +289,22 @@ class ReactionPickerDropdown extends React.PureComponent {
     frequentlyUsedEmojis: PropTypes.arrayOf(PropTypes.string),
     intl: PropTypes.object.isRequired,
     onPickEmoji: PropTypes.func.isRequired,
+    onRemoveEmoji: PropTypes.func.isRequired,
     onSkinTone: PropTypes.func.isRequired,
     skinTone: PropTypes.number.isRequired,
     button: PropTypes.node,
     dropdownPlacement: PropTypes.string,
+    iconButtonClass: PropTypes.string,
+    disabled: PropTypes.bool,
+    active: PropTypes.bool,
+    pressed: PropTypes.bool,
+  };
+
+  static defaultProps = {
+    iconButtonClass: 'status__action-bar-button',
+    disabled: false,
+    active: false,
+    pressed: false,
   };
 
   state = {
@@ -305,31 +317,37 @@ class ReactionPickerDropdown extends React.PureComponent {
   }
 
   onShowDropdown = ({ target }) => {
-    this.setState({ active: true });
+    if (!this.props.disabled) {
+      this.setState({ active: true });
 
-    if (!EmojiPicker) {
-      this.setState({ loading: true });
+      if (!EmojiPicker) {
+        this.setState({ loading: true });
 
-      EmojiPickerAsync().then(EmojiMart => {
-        EmojiPicker = EmojiMart.Picker;
-        Emoji       = EmojiMart.Emoji;
+        EmojiPickerAsync().then(EmojiMart => {
+          EmojiPicker = EmojiMart.Picker;
+          Emoji       = EmojiMart.Emoji;
 
-        this.setState({ loading: false });
-      }).catch(() => {
-        this.setState({ loading: false, active: false });
-      });
+          this.setState({ loading: false });
+        }).catch(() => {
+          this.setState({ loading: false, active: false });
+        });
+      }
+
+      const { top } = target.getBoundingClientRect();
     }
-
-    const { top } = target.getBoundingClientRect();
   }
 
   onHideDropdown = () => {
-    this.setState({ active: false });
+    if (!this.props.disabled) {
+      this.setState({ active: false });
+    }
   }
 
   onToggle = (e) => {
-    if (!this.state.loading && (!e.key || e.key === 'Enter')) {
-      if (this.state.active) {
+    if (!this.state.loading && (!e.key || e.key === 'Enter') && !this.props.disabled) {
+      if (this.props.active) {
+        this.props.onRemoveEmoji();
+      } else if (this.state.active) {
         this.onHideDropdown();
       } else {
         this.onShowDropdown(e);
@@ -338,7 +356,7 @@ class ReactionPickerDropdown extends React.PureComponent {
   }
 
   handleKeyDown = e => {
-    if (e.key === 'Escape') {
+    if (e.key === 'Escape' && !this.props.disabled) {
       this.onHideDropdown();
     }
   }
@@ -352,14 +370,14 @@ class ReactionPickerDropdown extends React.PureComponent {
   }
 
   render () {
-    const { intl, onPickEmoji, onSkinTone, skinTone, frequentlyUsedEmojis, button, dropdownPlacement } = this.props;
+    const { intl, onPickEmoji, onSkinTone, skinTone, frequentlyUsedEmojis, iconButtonClass, dropdownPlacement, disabled, active, pressed } = this.props;
     const title = intl.formatMessage(messages.emoji);
-    const { active, loading } = this.state;
+    const { active: show, loading } = this.state;
 
     return (
       <div className='emoji-picker-dropdown' onKeyDown={this.handleKeyDown}>
-        <IconButton className='status__action-bar-button' ref={this.setTargetRef} title={'reaction'} icon='smile-o' onClick={this.onToggle} />
-        <Overlay show={active} placement={dropdownPlacement} target={this.findTarget}>
+        <IconButton disabled={disabled} active={active} pressed={pressed} className={iconButtonClass} ref={this.setTargetRef} title={title} icon='smile-o' onClick={this.onToggle} />
+        <Overlay show={show} placement={dropdownPlacement} target={this.findTarget}>
           <EmojiPickerMenu
             custom_emojis={this.props.custom_emojis}
             loading={loading}

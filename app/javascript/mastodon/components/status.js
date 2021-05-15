@@ -16,16 +16,9 @@ import { MediaGallery, Video, Audio } from '../features/ui/util/async-components
 import { HotKeys } from 'react-hotkeys';
 import classNames from 'classnames';
 import Icon from 'mastodon/components/icon';
-import { displayMedia } from '../initial_state';
+import ReactionsBar from 'mastodon/components/reactions_bar';
 import PictureInPicturePlaceholder from 'mastodon/components/picture_in_picture_placeholder';
-
-import { Map as ImmutableMap } from 'immutable';
-import unicodeMapping from 'mastodon/features/emoji/emoji_unicode_mapping_light';
-import TransitionMotion from 'react-motion/lib/TransitionMotion';
-import AnimatedNumber from 'mastodon/components/animated_number';
-import { autoPlayGif, reduceMotion, disableSwiping } from 'mastodon/initial_state';
-import spring from 'react-motion/lib/spring';
-import { assetHost } from 'mastodon/utils/config';
+import { displayMedia, enableReaction } from 'mastodon/initial_state';
 
 // We use the component (and not the container) since we do not want
 // to use the progress bar to show download progress
@@ -495,170 +488,12 @@ class Status extends ImmutablePureComponent {
             <StatusContent status={status} onClick={this.handleClick} expanded={!status.get('hidden')} showThread={showThread} onExpandedToggle={this.handleExpandedToggle} collapsable onCollapsedToggle={this.handleCollapsedToggle} />
 
             {media}
-
-            <ReactionsBar
-              status={status}
-              addReaction={this.props.addReaction}
-              removeReaction={this.props.removeReaction}
-              emojiMap={this.props.emojiMap}
-            />
+            {enableReaction && <ReactionsBar status={status} addReaction={this.props.addReaction} removeReaction={this.props.removeReaction} emojiMap={this.props.emojiMap} />}
             <StatusActionBar scrollKey={scrollKey} status={status} account={account} {...other} />
           </div>
         </div>
       </HotKeys>
     );
-  }
-
-}
-
-/* Should it be separated as a "reaction_bar.js"? */
-class ReactionsBar extends ImmutablePureComponent {
-
-  static propTypes = {
-    status: ImmutablePropTypes.map.isRequired,
-    addReaction: PropTypes.func.isRequired,
-    removeReaction: PropTypes.func.isRequired,
-    emojiMap: ImmutablePropTypes.map.isRequired,
-  };
-
-  willEnter () {
-    return { scale: reduceMotion ? 1 : 0 };
-  }
-
-  willLeave () {
-    return { scale: reduceMotion ? 0 : spring(0, { stiffness: 170, damping: 26 }) };
-  }
-
-  render () {
-    const { status } = this.props;
-    const reactions = status.get("reactions")
-    const visibleReactions = reactions.filter(x => x.get('count') > 0);
-
-    const styles = visibleReactions.map(reaction => ({
-      key: reaction.get('name'),
-      data: reaction,
-      style: { scale: reduceMotion ? 1 : spring(1, { stiffness: 150, damping: 13 }) },
-    })).toArray();
-
-    return (
-      <TransitionMotion styles={styles} willEnter={this.willEnter} willLeave={this.willLeave}>
-        {items => (
-          <div className={classNames('reactions-bar', { 'reactions-bar--empty': visibleReactions.isEmpty() })}>
-            {items.map(({ key, data, style }) => (
-              <Reaction
-                key={key}
-                reaction={data}
-                style={{ transform: `scale(${style.scale})`, position: style.scale < 0.5 ? 'absolute' : 'static' }}
-                status={this.props.status}
-                addReaction={this.props.addReaction}
-                removeReaction={this.props.removeReaction}
-                emojiMap={this.props.emojiMap}
-              />
-            ))}
-            {visibleReactions.size < 8}
-          </div>
-        )}
-      </TransitionMotion>
-    );
-  }
-
-}
-class Reaction extends ImmutablePureComponent {
-
-  static propTypes = {
-    status: ImmutablePropTypes.map.isRequired,
-    reaction: ImmutablePropTypes.map.isRequired,
-    addReaction: PropTypes.func.isRequired,
-    removeReaction: PropTypes.func.isRequired,
-    emojiMap: ImmutablePropTypes.map.isRequired,
-    style: PropTypes.object,
-  };
-
-  state = {
-    hovered: false,
-  };
-
-  handleClick = () => {
-    const { reaction, status, addReaction, removeReaction } = this.props;
-
-    if (reaction.get('me')) {
-      removeReaction(status, reaction.get('name'), reaction.get('domain'));
-    } else {
-      addReaction(status, reaction.get('name'), reaction.get('domain'));
-    }
-  }
-
-  handleMouseEnter = () => this.setState({ hovered: true })
-
-  handleMouseLeave = () => this.setState({ hovered: false })
-
-  render () {
-    const { reaction } = this.props;
-
-    let shortCode = reaction.get('name');
-
-    if (unicodeMapping[shortCode]) {
-      shortCode = unicodeMapping[shortCode].shortCode;
-    }
-
-    return (
-      <button className={classNames('reactions-bar__item', { active: reaction.get('me') })} onClick={this.handleClick} onMouseEnter={this.handleMouseEnter} onMouseLeave={this.handleMouseLeave} title={`:${shortCode}:`} style={this.props.style}>
-        <span className='reactions-bar__item__emoji'><Emoji hovered={this.state.hovered} emoji={reaction.get('name')} emojiMap={this.props.emojiMap} url={reaction.get('url')} static_url={reaction.get('static_url')} /></span>
-        <span className='reactions-bar__item__count'><AnimatedNumber value={reaction.get('count')} /></span>
-      </button>
-    );
-  }
-
-}
-class Emoji extends React.PureComponent {
-
-  static propTypes = {
-    emoji: PropTypes.string.isRequired,
-    emojiMap: ImmutablePropTypes.map.isRequired,
-    hovered: PropTypes.bool.isRequired,
-    url: PropTypes.string,
-    static_url: PropTypes.string,
-  };
-
-  render () {
-    const { emoji, emojiMap, hovered, url, static_url } = this.props;
-    if (unicodeMapping[emoji]) {
-      const { filename, shortCode } = unicodeMapping[this.props.emoji];
-      const title = shortCode ? `:${shortCode}:` : '';
-      return (
-        <img
-          draggable='false'
-          className='emojione'
-          alt={emoji}
-          title={title}
-          src={`${assetHost}/emoji/${filename}.svg`}
-        />
-      );
-    } else if (emojiMap.get(emoji)) {
-      const filename  = (autoPlayGif || hovered) ? emojiMap.getIn([emoji, 'url']) : emojiMap.getIn([emoji, 'static_url']);
-      const shortCode = `:${emoji}:`;
-      return (
-        <img
-          draggable='false'
-          className='emojione custom-emoji'
-          alt={shortCode}
-          title={shortCode}
-          src={filename}
-        />
-      );
-    } else {
-      const filename  = (autoPlayGif || hovered) ? url : static_url;
-      const shortCode = `:${emoji}:`;
-      return (
-        <img
-          draggable='false'
-          className='emojione custom-emoji'
-          alt={shortCode}
-          title={shortCode}
-          src={filename}
-        />
-      );
-    }
   }
 
 }

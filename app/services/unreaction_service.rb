@@ -3,46 +3,25 @@
 class UnreactionService < BaseService
   include Payloadable
 
-  def call(account, status, emoji)
-    shortcode = emoji.split("@")[0]
-    domain    = emoji.split("@")[1]
-    domain    = nil if domain.eql?("undefined")
+  def call(account, status)
+    reaction = EmojiReaction.find_by!(account: account, status: status)
 
-    custom_emoji = CustomEmoji.find_by(shortcode: shortcode, domain: domain)
-
-    reaction = EmojiReaction.find_by(account: account, status: status, name: shortcode)
-
-    return reaction if reaction.nil?
-
-    # custom emoji
-    unless custom_emoji.nil?
-      if status.account.activitypub?
-        ActivityPub::DeliveryWorker.perform_async(build_reaction_custom_json(reaction), reaction.account_id, status.account.inbox_url)
-      end
-    # unicode emoji
-    else
-      if status.account.activitypub?
-        ActivityPub::DeliveryWorker.perform_async(build_reaction_unicode_json(reaction), reaction.account_id, status.account.inbox_url)
-      end
-    end
-    reaction.destroy!      
+    reaction.destroy!
+    create_notification(reaction)
     reaction
-
   end
 
   private
 
-  # Should be the same function "build_json"???
-  # Return including "_misskey_reaction"???
-  def build_reaction_unicode_json(reaction)
-    undo_like = serialize_payload(reaction, ActivityPub::UndoLikeSerializer)
-    Oj.dump(undo_like)
+  def create_notification(reaction)
+    status = reaction.status
+
+    if !status.account.local? && status.account.activitypub?
+      ActivityPub::DeliveryWorker.perform_async(build_json(reaction), reaction.account_id, status.account.inbox_url)
+    end
   end
 
-  # Should be the same function "build_json"???
-  # Return including "_misskey_reaction"???
-  def build_reaction_custom_json(reaction)
-    undo_like = serialize_payload(reaction, ActivityPub::UndoLikeSerializer)
-    Oj.dump(undo_like)
+  def build_json(reaction)
+    Oj.dump(serialize_payload(reaction, ActivityPub::UndoEmojiReactionSerializer))
   end
 end

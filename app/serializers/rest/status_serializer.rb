@@ -10,6 +10,7 @@ class REST::StatusSerializer < ActiveModel::Serializer
   attribute :reblogged, if: :current_user?
   attribute :muted, if: :current_user?
   attribute :bookmarked, if: :current_user?
+  attribute :emoji_reactioned, if: :current_user?
   attribute :pinned, if: :pinnable?
 
   attribute :content, unless: :source_requested?
@@ -112,6 +113,14 @@ class REST::StatusSerializer < ActiveModel::Serializer
       instance_options[:relationships].bookmarks_map[object.id] || false
     else
       current_user.account.bookmarked?(object)
+    end
+  end
+
+  def emoji_reactioned
+    if instance_options && instance_options[:relationships]
+      instance_options[:relationships].emoji_reactions_map[object.id] || false
+    else
+      current_user.account.emoji_reactioned?(object)
     end
   end
 

@@ -39,6 +39,7 @@ class UserSettingsDecorator
     user.settings['use_pending_items']   = use_pending_items_preference if change?('setting_use_pending_items')
     user.settings['trends']              = trends_preference if change?('setting_trends')
     user.settings['crop_images']         = crop_images_preference if change?('setting_crop_images')
+    user.settings['enable_reaction']                   = enable_reaction_preference if change?('setting_enable_reaction')
   end
 
   def merged_notification_emails
@@ -135,6 +136,10 @@ class UserSettingsDecorator
 
   def crop_images_preference
     boolean_cast_setting 'setting_crop_images'
+  end
+
+  def enable_reaction_preference
+    boolean_cast_setting 'setting_enable_reaction'
   end
 
   def boolean_cast_setting(key)

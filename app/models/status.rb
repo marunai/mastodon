@@ -144,11 +144,13 @@ class Status < ApplicationRecord
       ids += favourites.where(account: Account.local).pluck(:account_id)
       ids += reblogs.where(account: Account.local).pluck(:account_id)
       ids += bookmarks.where(account: Account.local).pluck(:account_id)
+      ids += emoji_reactions.where(account: Account.local).pluck(:account_id)
     else
       ids += preloaded.mentions[id] || []
       ids += preloaded.favourites[id] || []
       ids += preloaded.reblogs[id] || []
       ids += preloaded.bookmarks[id] || []
+      ids += preloaded.emoji_reactions[id] || []
     end
 
     ids.uniq
@@ -293,6 +295,10 @@ class Status < ApplicationRecord
 
     def bookmarks_map(status_ids, account_id)
       Bookmark.select('status_id').where(status_id: status_ids).where(account_id: account_id).map { |f| [f.status_id, true] }.to_h
+    end
+
+    def emoji_reactions_map(status_ids, account_id)
+      EmojiReaction.select('status_id').where(status_id: status_ids).where(account_id: account_id).map { |f| [f.status_id, true] }.to_h
     end
 
     def reblogs_map(status_ids, account_id)

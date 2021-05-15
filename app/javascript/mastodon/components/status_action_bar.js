@@ -6,7 +6,7 @@ import IconButton from './icon_button';
 import DropdownMenuContainer from '../containers/dropdown_menu_container';
 import { defineMessages, injectIntl } from 'react-intl';
 import ImmutablePureComponent from 'react-immutable-pure-component';
-import { me, isStaff } from '../initial_state';
+import { me, isStaff, enableReaction } from '../initial_state';
 import classNames from 'classnames';
 
 import ReactionPickerDropdown from '../containers/reaction_picker_dropdown_container';
@@ -229,6 +229,11 @@ class StatusActionBar extends ImmutablePureComponent {
     addReaction(status, data.native.replace(/:/g, ''), '');
   }
 
+  handleEmojiRemove = () => {
+    const { removeReaction, status } = this.props;
+    removeReaction(status);
+  }
+
   render () {
     const { status, relationship, intl, withDismiss, scrollKey } = this.props;
 
@@ -335,7 +340,7 @@ class StatusActionBar extends ImmutablePureComponent {
         <IconButton className='status__action-bar-button' title={replyTitle} icon={status.get('in_reply_to_account_id') === status.getIn(['account', 'id']) ? 'reply' : replyIcon} onClick={this.handleReplyClick} counter={status.get('replies_count')} obfuscateCount />
         <IconButton className={classNames('status__action-bar-button', { reblogPrivate })} disabled={!publicStatus && !reblogPrivate}  active={status.get('reblogged')} pressed={status.get('reblogged')} title={reblogTitle} icon='retweet' onClick={this.handleReblogClick} />
         <IconButton className='status__action-bar-button star-icon' animate active={status.get('favourited')} pressed={status.get('favourited')} title={intl.formatMessage(messages.favourite)} icon='star' onClick={this.handleFavouriteClick} />
-        <ReactionPickerDropdown className='status__action-bar-button' onPickEmoji={this.handleEmojiPick} />
+        {enableReaction && <ReactionPickerDropdown active={status.get('emoji_reactioned')} pressed={status.get('emoji_reactioned')} className='status__action-bar-button' onPickEmoji={this.handleEmojiPick} onRemoveEmoji={this.handleEmojiRemove} />}
         {shareButton}
 
         <div className='status__action-bar-dropdown'>

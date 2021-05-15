@@ -8,22 +8,25 @@
 #  account_id      :bigint(8)
 #  status_id       :bigint(8)
 #  name            :string           default(""), not null
-#  custom_emoji_id :bigint(8)        optional
+#  custom_emoji_id :bigint(8)
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null
+#  uri             :string
 #
 
 class EmojiReaction < ApplicationRecord
-  after_commit :queue_publish
+  include Paginable
+
   belongs_to :account
   belongs_to :status, inverse_of: :emoji_reactions 
   belongs_to :custom_emoji, optional: true
 
+  has_one :notification, as: :activity, dependent: :destroy
+
   validates :name, presence: true
   validates_with EmojiReactionValidator
 
-  def queue_publish
-    PushUpdateWorker.perform_async(status.account.id, status_id) unless status.destroyed?
-    DistributionWorker.perform_async(status_id) unless status.destroyed?
+  before_validation do
+    self.status = status.reblog if status&.reblog?
   end
 end

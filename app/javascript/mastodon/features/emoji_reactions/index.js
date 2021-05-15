@@ -4,7 +4,7 @@ import ImmutablePureComponent from 'react-immutable-pure-component';
 import PropTypes from 'prop-types';
 import ImmutablePropTypes from 'react-immutable-proptypes';
 import LoadingIndicator from '../../components/loading_indicator';
-import { fetchFavourites } from '../../actions/interactions';
+import { fetchEmojiReactions } from '../../actions/interactions';
 import { defineMessages, injectIntl, FormattedMessage } from 'react-intl';
 import AccountContainer from '../../containers/account_container';
 import Column from '../ui/components/column';
@@ -17,12 +17,12 @@ const messages = defineMessages({
 });
 
 const mapStateToProps = (state, props) => ({
-  accountIds: state.getIn(['user_lists', 'favourited_by', props.params.statusId]),
+  accountIds: state.getIn(['user_lists', 'emoji_reactioned_by', props.params.statusId]),
 });
 
 export default @connect(mapStateToProps)
 @injectIntl
-class Favourites extends ImmutablePureComponent {
+class EmojiReactions extends ImmutablePureComponent {
 
   static propTypes = {
     params: PropTypes.object.isRequired,
@@ -35,18 +35,18 @@ class Favourites extends ImmutablePureComponent {
 
   componentWillMount () {
     if (!this.props.accountIds) {
-      this.props.dispatch(fetchFavourites(this.props.params.statusId));
+      this.props.dispatch(fetchEmojiReactions(this.props.params.statusId));
     }
   }
 
   componentWillReceiveProps (nextProps) {
     if (nextProps.params.statusId !== this.props.params.statusId && nextProps.params.statusId) {
-      this.props.dispatch(fetchFavourites(nextProps.params.statusId));
+      this.props.dispatch(fetchEmojiReactions(nextProps.params.statusId));
     }
   }
 
   handleRefresh = () => {
-    this.props.dispatch(fetchFavourites(this.props.params.statusId));
+    this.props.dispatch(fetchEmojiReactions(this.props.params.statusId));
   }
 
   render () {
@@ -60,7 +60,7 @@ class Favourites extends ImmutablePureComponent {
       );
     }
 
-    const emptyMessage = <FormattedMessage id='empty_column.favourites' defaultMessage='No one has favourited this post yet. When someone does, they will show up here.' />;
+    const emptyMessage = <FormattedMessage id='empty_column.emoji_reactions' defaultMessage='No one has reactioned this post yet. When someone does, they will show up here.' />;
 
     return (
       <Column bindToDocument={!multiColumn}>
@@ -73,7 +73,7 @@ class Favourites extends ImmutablePureComponent {
         />
 
         <ScrollableList
-          scrollKey='favourites'
+          scrollKey='emoji_reactions'
           shouldUpdateScroll={shouldUpdateScroll}
           emptyMessage={emptyMessage}
           bindToDocument={!multiColumn}

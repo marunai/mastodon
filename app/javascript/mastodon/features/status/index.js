@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import ImmutablePropTypes from 'react-immutable-proptypes';
+import { Map as ImmutableMap } from 'immutable';
 import { createSelector } from 'reselect';
 import { fetchStatus } from '../../actions/statuses';
 import MissingIndicator from '../../components/missing_indicator';
@@ -19,6 +20,8 @@ import {
   unreblog,
   pin,
   unpin,
+  addreaction,
+  removereaction,
 } from '../../actions/interactions';
 import {
   replyCompose,
@@ -74,6 +77,7 @@ const messages = defineMessages({
 const makeMapStateToProps = () => {
   const getStatus = makeGetStatus();
   const getPictureInPicture = makeGetPictureInPicture();
+  const customEmojiMap = createSelector([state => state.get('custom_emojis')], items => items.reduce((map, emoji) => map.set(emoji.get('shortcode'), emoji), ImmutableMap()));
 
   const getAncestorsIds = createSelector([
     (_, { id }) => id,
@@ -147,6 +151,7 @@ const makeMapStateToProps = () => {
       askReplyConfirmation: state.getIn(['compose', 'text']).trim().length !== 0,
       domain: state.getIn(['meta', 'domain']),
       pictureInPicture: getPictureInPicture(state, { id: props.params.statusId }),
+      emojiMap: customEmojiMap(state),
     };
   };
 
@@ -175,6 +180,7 @@ class Status extends ImmutablePureComponent {
       inUse: PropTypes.bool,
       available: PropTypes.bool,
     }),
+    emojiMap: ImmutablePropTypes.map,
   };
 
   state = {
@@ -407,6 +413,14 @@ class Status extends ImmutablePureComponent {
     this.handleToggleMediaVisibility();
   }
 
+  handleAddReaction = (status, name, domain) => {
+    this.props.dispatch(addreaction(status, name, domain));
+  }
+
+  handleRemoveReaction = (status) => {
+    this.props.dispatch(removereaction(status));
+  }
+
   handleMoveUp = id => {
     const { status, ancestorsIds, descendantsIds } = this.props;
 
@@ -498,7 +512,7 @@ class Status extends ImmutablePureComponent {
 
   render () {
     let ancestors, descendants;
-    const { shouldUpdateScroll, status, ancestorsIds, descendantsIds, intl, domain, multiColumn, pictureInPicture } = this.props;
+    const { shouldUpdateScroll, status, ancestorsIds, descendantsIds, intl, domain, multiColumn, pictureInPicture, emojiMap } = this.props;
     const { fullscreen } = this.state;
 
     if (status === null) {
@@ -557,6 +571,8 @@ class Status extends ImmutablePureComponent {
                   showMedia={this.state.showMedia}
                   onToggleMediaVisibility={this.handleToggleMediaVisibility}
                   pictureInPicture={pictureInPicture}
+                  addReaction={this.handleAddReaction}
+                  removeReaction={this.handleRemoveReaction}
                 />
 
                 <ActionBar
@@ -579,6 +595,8 @@ class Status extends ImmutablePureComponent {
                   onReport={this.handleReport}
                   onPin={this.handlePin}
                   onEmbed={this.handleEmbed}
+                  addReaction={this.handleAddReaction}
+                  removeReaction={this.handleRemoveReaction}
                 />
               </div>
             </HotKeys>

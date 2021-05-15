@@ -13,6 +13,8 @@ import {
   unfavourite,
   pin,
   unpin,
+  addreaction,
+  removereaction,
 } from '../../../actions/interactions';
 import {
   muteStatus,
@@ -30,6 +32,9 @@ import { defineMessages, injectIntl } from 'react-intl';
 import { boostModal, deleteModal } from '../../../initial_state';
 import { showAlertForError } from '../../../actions/alerts';
 
+import { createSelector } from 'reselect';
+import { Map as ImmutableMap } from 'immutable';
+
 const messages = defineMessages({
   deleteConfirm: { id: 'confirmations.delete.confirm', defaultMessage: 'Delete' },
   deleteMessage: { id: 'confirmations.delete.message', defaultMessage: 'Are you sure you want to delete this status?' },
@@ -42,11 +47,13 @@ const messages = defineMessages({
 const makeMapStateToProps = () => {
   const getStatus = makeGetStatus();
   const getPictureInPicture = makeGetPictureInPicture();
+  const customEmojiMap = createSelector([state => state.get('custom_emojis')], items => items.reduce((map, emoji) => map.set(emoji.get('shortcode'), emoji), ImmutableMap()));
 
   const mapStateToProps = (state, props) => ({
     status: getStatus(state, props),
     domain: state.getIn(['meta', 'domain']),
     pictureInPicture: getPictureInPicture(state, props),
+    emojiMap: customEmojiMap(state),
   });
 
   return mapStateToProps;
@@ -163,6 +170,14 @@ const mapDispatchToProps = (dispatch, { intl }) => ({
     } else {
       dispatch(hideStatus(status.get('id')));
     }
+  },
+
+  addReaction (status, name, domain) {
+    dispatch(addreaction(status, name, domain));
+  },
+
+  removeReaction (status) {
+    dispatch(removereaction(status));
   },
 
 });
