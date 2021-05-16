@@ -31,8 +31,8 @@ import {
   UNFAVOURITE_SUCCESS,
   BOOKMARK_SUCCESS,
   UNBOOKMARK_SUCCESS,
-  REACTION_SUCCESS,
-  UNREACTION_SUCCESS,
+  EMOJI_REACTION_SUCCESS,
+  UN_EMOJI_REACTION_SUCCESS,
   PIN_SUCCESS,
   UNPIN_SUCCESS,
 } from '../actions/interactions';
@@ -129,9 +129,9 @@ export default function statusLists(state = initialState, action) {
     return prependOneToList(state, 'bookmarks', action.status);
   case UNBOOKMARK_SUCCESS:
     return removeOneFromList(state, 'bookmarks', action.status);
-  case REACTION_SUCCESS:
+  case EMOJI_REACTION_SUCCESS:
     return prependOneToList(state, 'emoji_reactions', action.status);
-  case UNREACTION_SUCCESS:
+  case UN_EMOJI_REACTION_SUCCESS:
     return removeOneFromList(state, 'emoji_reactions', action.status);
   case PINNED_STATUSES_FETCH_SUCCESS:
     return normalizeList(state, 'pins', action.statuses, action.next);

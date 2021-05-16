@@ -25,10 +25,6 @@ export const FAVOURITES_FETCH_REQUEST = 'FAVOURITES_FETCH_REQUEST';
 export const FAVOURITES_FETCH_SUCCESS = 'FAVOURITES_FETCH_SUCCESS';
 export const FAVOURITES_FETCH_FAIL    = 'FAVOURITES_FETCH_FAIL';
 
-export const EMOJI_REACTIONS_FETCH_REQUEST = 'EMOJI_REACTIONS_FETCH_REQUEST';
-export const EMOJI_REACTIONS_FETCH_SUCCESS = 'EMOJI_REACTIONS_FETCH_SUCCESS';
-export const EMOJI_REACTIONS_FETCH_FAIL    = 'EMOJI_REACTIONS_FETCH_FAIL';
-
 export const PIN_REQUEST = 'PIN_REQUEST';
 export const PIN_SUCCESS = 'PIN_SUCCESS';
 export const PIN_FAIL    = 'PIN_FAIL';
@@ -45,9 +41,15 @@ export const UNBOOKMARK_REQUEST = 'UNBOOKMARKED_REQUEST';
 export const UNBOOKMARK_SUCCESS = 'UNBOOKMARKED_SUCCESS';
 export const UNBOOKMARK_FAIL    = 'UNBOOKMARKED_FAIL';
 
-export const UNREACTION_REQUEST = 'UNREACTION_REQUEST';
-export const UNREACTION_SUCCESS = 'UNREACTION_SUCCESS';
-export const UNREACTION_FAIL    = 'UNREACTION_FAIL';
+export const EMOJI_REACTION_REQUEST = 'EMOJI_REACTION_REQUEST';
+export const EMOJI_REACTION_SUCCESS = 'EMOJI_REACTION_SUCCESS';
+export const EMOJI_REACTION_FAIL    = 'EMOJI_REACTION_FAIL';
+
+export const UN_EMOJI_REACTION_REQUEST = 'UN_EMOJI_REACTION_REQUEST';
+export const UN_EMOJI_REACTION_SUCCESS = 'UN_EMOJI_REACTION_SUCCESS';
+export const UN_EMOJI_REACTION_FAIL    = 'UN_EMOJI_REACTION_FAIL';
+
+export const EMOJI_REACTION_UPDATE = 'EMOJI_REACTION_UPDATE';
 
 export function reblog(status, visibility) {
   return function (dispatch, getState) {
@@ -456,78 +458,117 @@ export function unpinFail(status, error) {
   };
 };
 
-export function addreaction(status, name, domain) {
+export function addEmojiReaction(status, name, domain, url, static_url) {
   return function (dispatch, getState) {
-    dispatch(reactionRequest(status));
+    dispatch(emojiReactionRequest(status, name, domain, url, static_url));
 
     api(getState).put(`/api/v1/statuses/${status.get('id')}/emoji_reactions/${name}${domain ? `@${domain}` : ''}`).then(function (response) {
       dispatch(importFetchedStatus(response.data));
-      dispatch(reactionSuccess(status));
+      dispatch(emojiReactionSuccess(status, name, domain, url, static_url));
     }).catch(function (error) {
-      dispatch(reactionFail(status, error));
+      dispatch(emojiReactionFail(status, name, domain, url, static_url, error));
     });
   };
 };
 
-export function reactionRequest(status) {
+export function emojiReactionRequest(status, name, domain, url, static_url) {
   return {
-    type: REACTION_REQUEST,
+    type: EMOJI_REACTION_REQUEST,
     status: status,
+    name: name,
+    domain: domain,
+    url: url,
+    static_url: static_url,
     skipLoading: true,
   };
 };
 
-export function reactionSuccess(status) {
+export function emojiReactionSuccess(status, name, domain, url, static_url) {
   return {
-    type: REACTION_SUCCESS,
+    type: EMOJI_REACTION_SUCCESS,
     status: status,
+    name: name,
+    domain: domain,
+    url: url,
+    static_url: static_url,
     skipLoading: true,
   };
 };
 
-export function reactionFail(status, error) {
+export function emojiReactionFail(status, name, domain, url, static_url, error) {
   return {
-    type: REACTION_FAIL,
+    type: EMOJI_REACTION_FAIL,
     status: status,
+    name: name,
+    domain: domain,
+    url: url,
+    static_url: static_url,
     error: error,
     skipLoading: true,
   };
 };
 
-export function removereaction(status) {
+const findMyEmojiReaction = (status) => {
+  return status.get('emoji_reactions').find(emoji_reaction => emoji_reaction.get('me') === true) ?? {};
+};
+
+export function removeEmojiReaction(status) {
   return function (dispatch, getState) {
-   dispatch(unreactionRequest(status));
+    const {name, domain, url, static_url} = findMyEmojiReaction(status).toObject();
 
-    api(getState).post(`/api/v1/statuses/${status.get('id')}/emoji_unreaction`).then(function (response) {
-      dispatch(importFetchedStatus(response.data));
-      dispatch(unreactionSuccess(status));
-    }).catch(function (error) {
-      dispatch(unreactionFail(status, error));
-    });
+    if (name) {
+      dispatch(unEmojiReactionRequest(status, name, domain, url, static_url));
+
+      api(getState).post(`/api/v1/statuses/${status.get('id')}/emoji_unreaction`).then(function (response) {
+        dispatch(importFetchedStatus(response.data));
+        dispatch(unEmojiReactionSuccess(status, name, domain, url, static_url));
+      }).catch(function (error) {
+        dispatch(unEmojiReactionFail(status, name, domain, url, static_url, error));
+      });
+    }
   };
 };
 
-export function unreactionRequest(status) {
+export function unEmojiReactionRequest(status, name, domain, url, static_url) {
   return {
-    type: UNREACTION_REQUEST,
+    type: UN_EMOJI_REACTION_REQUEST,
     status: status,
+    name: name,
+    domain: domain,
+    url: url,
+    static_url: static_url,
     skipLoading: true,
   };
 };
 
-export function unreactionSuccess(status) {
+export function unEmojiReactionSuccess(status, name, domain, url, static_url) {
   return {
-    type: UNREACTION_SUCCESS,
+    type: UN_EMOJI_REACTION_SUCCESS,
     status: status,
+    name: name,
+    domain: domain,
+    url: url,
+    static_url: static_url,
     skipLoading: true,
   };
 };
 
-export function unreactionFail(status, error) {
+export function unEmojiReactionFail(status, name, domain, url, static_url, error) {
   return {
-    type: UNREACTION_FAIL,
+    type: UN_EMOJI_REACTION_FAIL,
     status: status,
+    name: name,
+    domain: domain,
+    url: url,
+    static_url: static_url,
     error: error,
     skipLoading: true,
+  };
+};
+
+export const updateEmojiReaction = emoji_reaction => {
+  return {
+    type: EMOJI_REACTION_UPDATE,
+    emojiReaction: emoji_reaction,
   };
 };

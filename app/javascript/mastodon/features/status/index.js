@@ -20,8 +20,8 @@ import {
   unreblog,
   pin,
   unpin,
-  addreaction,
-  removereaction,
+  addEmojiReaction,
+  removeEmojiReaction,
 } from '../../actions/interactions';
 import {
   replyCompose,
@@ -413,12 +413,12 @@ class Status extends ImmutablePureComponent {
     this.handleToggleMediaVisibility();
   }
 
-  handleAddReaction = (status, name, domain) => {
-    this.props.dispatch(addreaction(status, name, domain));
+  handleAddEmojiReaction = (status, name, domain, url, static_url) => {
+    this.props.dispatch(addEmojiReaction(status, name, domain, url, static_url));
   }
 
-  handleRemoveReaction = (status) => {
-    this.props.dispatch(removereaction(status));
+  handleRemoveEmojiReaction = (status) => {
+    this.props.dispatch(removeEmojiReaction(status));
   }
 
   handleMoveUp = id => {
@@ -571,8 +571,9 @@ class Status extends ImmutablePureComponent {
                   showMedia={this.state.showMedia}
                   onToggleMediaVisibility={this.handleToggleMediaVisibility}
                   pictureInPicture={pictureInPicture}
-                  addReaction={this.handleAddReaction}
-                  removeReaction={this.handleRemoveReaction}
+                  emojiMap={emojiMap}
+                  addEmojiReaction={this.handleAddEmojiReaction}
+                  removeEmojiReaction={this.handleRemoveEmojiReaction}
                 />
 
                 <ActionBar
@@ -595,8 +596,8 @@ class Status extends ImmutablePureComponent {
                   onReport={this.handleReport}
                   onPin={this.handlePin}
                   onEmbed={this.handleEmbed}
-                  addReaction={this.handleAddReaction}
-                  removeReaction={this.handleRemoveReaction}
+                  addEmojiReaction={this.handleAddEmojiReaction}
+                  removeEmojiReaction={this.handleRemoveEmojiReaction}
                 />
               </div>
             </HotKeys>

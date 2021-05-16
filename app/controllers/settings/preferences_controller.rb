@@ -56,7 +56,7 @@ class Settings::PreferencesController < Settings::BaseController
       :setting_trends,
       :setting_crop_images,
       :setting_enable_reaction,
-      notification_emails: %i(follow follow_request reblog favourite mention digest report pending_account trending_tag),
+      notification_emails: %i(follow follow_request reblog favourite emoji_reaction mention digest report pending_account trending_tag),
       interactions: %i(must_be_follower must_be_following must_be_following_dm)
     )
   end

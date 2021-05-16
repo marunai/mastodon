@@ -247,7 +247,7 @@ class Status < ApplicationRecord
     status_stat&.favourites_count || 0
   end
 
-  def reactions(account = nil)
+  def grouped_reactions(account = nil)
     records = begin
       scope = emoji_reactions.group(:status_id, :name, :custom_emoji_id).order(Arel.sql('MIN(created_at) ASC'))
       if account.nil?

@@ -199,6 +199,7 @@ ja:
         severity: ルール
       notification_emails:
         digest: タイムラインからピックアップしてメールで通知する
+        emoji_reaction: 絵文字リアクションされた時
         favourite: お気に入り登録された時
         follow: フォローされた時
         follow_request: フォローリクエストを受けた時

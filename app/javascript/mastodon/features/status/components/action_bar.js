@@ -73,8 +73,8 @@ class ActionBar extends React.PureComponent {
     onPin: PropTypes.func,
     onEmbed: PropTypes.func,
     intl: PropTypes.object.isRequired,
-    addReaction: PropTypes.func.isRequired,
-    removeReaction: PropTypes.func.isRequired,
+    addEmojiReaction: PropTypes.func.isRequired,
+    removeEmojiReaction: PropTypes.func.isRequired,
   };
 
   handleReplyClick = () => {
@@ -188,13 +188,13 @@ class ActionBar extends React.PureComponent {
   }
 
   handleEmojiPick = data => {
-    const { addReaction, status } = this.props;
-    addReaction(status, data.native.replace(/:/g, ''), '');
+    const { addEmojiReaction, status } = this.props;
+    addEmojiReaction(status, data.native.replace(/:/g, ''), null, null, null);
   }
 
   handleEmojiRemove = () => {
-    const { removeReaction, status } = this.props;
-    removeReaction(status);
+    const { removeEmojiReaction, status } = this.props;
+    removeEmojiReaction(status);
   }
 
   render () {

@@ -16,7 +16,7 @@ import { MediaGallery, Video, Audio } from '../features/ui/util/async-components
 import { HotKeys } from 'react-hotkeys';
 import classNames from 'classnames';
 import Icon from 'mastodon/components/icon';
-import ReactionsBar from 'mastodon/components/reactions_bar';
+import EmojiReactionsBar from 'mastodon/components/emoji_reactions_bar';
 import PictureInPicturePlaceholder from 'mastodon/components/picture_in_picture_placeholder';
 import { displayMedia, enableReaction } from 'mastodon/initial_state';
 
@@ -103,8 +103,8 @@ class Status extends ImmutablePureComponent {
       available: PropTypes.bool,
     }),
     emojiMap: ImmutablePropTypes.map,
-    addReaction: PropTypes.func.isRequired,
-    removeReaction: PropTypes.func.isRequired,
+    addEmojiReaction: PropTypes.func.isRequired,
+    removeEmojiReaction: PropTypes.func.isRequired,
   };
 
   // Avoid checking props that are functions (and whose equality will always
@@ -488,7 +488,13 @@ class Status extends ImmutablePureComponent {
             <StatusContent status={status} onClick={this.handleClick} expanded={!status.get('hidden')} showThread={showThread} onExpandedToggle={this.handleExpandedToggle} collapsable onCollapsedToggle={this.handleCollapsedToggle} />
 
             {media}
-            {enableReaction && <ReactionsBar status={status} addReaction={this.props.addReaction} removeReaction={this.props.removeReaction} emojiMap={this.props.emojiMap} />}
+
+            {enableReaction && <EmojiReactionsBar
+              status={status}
+              addEmojiReaction={this.props.addEmojiReaction}
+              removeEmojiReaction={this.props.removeEmojiReaction}
+              emojiMap={this.props.emojiMap}
+            />}
             <StatusActionBar scrollKey={scrollKey} status={status} account={account} {...other} />
           </div>
         </div>

@@ -10,13 +10,13 @@ import AnimatedNumber from 'mastodon/components/animated_number';
 import { reduceMotion } from 'mastodon/initial_state';
 import spring from 'react-motion/lib/spring';
 
-class Reaction extends ImmutablePureComponent {
+class EmojiReaction extends ImmutablePureComponent {
 
   static propTypes = {
     status: ImmutablePropTypes.map.isRequired,
-    reaction: ImmutablePropTypes.map.isRequired,
-    addReaction: PropTypes.func.isRequired,
-    removeReaction: PropTypes.func.isRequired,
+    emojiReaction: ImmutablePropTypes.map.isRequired,
+    addEmojiReaction: PropTypes.func.isRequired,
+    removeEmojiReaction: PropTypes.func.isRequired,
     emojiMap: ImmutablePropTypes.map.isRequired,
     style: PropTypes.object,
   };
@@ -26,12 +26,12 @@ class Reaction extends ImmutablePureComponent {
   };
 
   handleClick = () => {
-    const { reaction, status, addReaction, removeReaction } = this.props;
+    const { emojiReaction, status, addEmojiReaction, removeEmojiReaction } = this.props;
 
-    if (reaction.get('me')) {
-      removeReaction(status);
+    if (emojiReaction.get('me')) {
+      removeEmojiReaction(status);
     } else {
-      addReaction(status, reaction.get('name'), reaction.get('domain'));
+      addEmojiReaction(status, emojiReaction.get('name'), emojiReaction.get('domain', null), emojiReaction.get('url', null), emojiReaction.get('static_url', null));
     }
   }
 
@@ -40,30 +40,30 @@ class Reaction extends ImmutablePureComponent {
   handleMouseLeave = () => this.setState({ hovered: false })
 
   render () {
-    const { reaction } = this.props;
+    const { emojiReaction, status } = this.props;
 
-    let shortCode = reaction.get('name');
+    let shortCode = emojiReaction.get('name');
 
     if (unicodeMapping[shortCode]) {
       shortCode = unicodeMapping[shortCode].shortCode;
     }
 
     return (
-      <button className={classNames('reactions-bar__item', { active: reaction.get('me') })} onClick={this.handleClick} onMouseEnter={this.handleMouseEnter} onMouseLeave={this.handleMouseLeave} title={`:${shortCode}:`} style={this.props.style}>
-        <span className='reactions-bar__item__emoji'><Emoji hovered={this.state.hovered} emoji={reaction.get('name')} emojiMap={this.props.emojiMap} url={reaction.get('url')} static_url={reaction.get('static_url')} /></span>
-        <span className='reactions-bar__item__count'><AnimatedNumber value={reaction.get('count')} /></span>
+      <button className={classNames('reactions-bar__item', { active: emojiReaction.get('me') })} disabled={status.get('emoji_reactioned') && !emojiReaction.get('me')} onClick={this.handleClick} onMouseEnter={this.handleMouseEnter} onMouseLeave={this.handleMouseLeave} title={`:${shortCode}:`} style={this.props.style}>
+        <span className='reactions-bar__item__emoji'><Emoji hovered={this.state.hovered} emoji={emojiReaction.get('name')} emojiMap={this.props.emojiMap} url={emojiReaction.get('url')} static_url={emojiReaction.get('static_url')} /></span>
+        <span className='reactions-bar__item__count'><AnimatedNumber value={emojiReaction.get('count')} /></span>
       </button>
     );
   }
   
 }
 
-export default class ReactionsBar extends ImmutablePureComponent {
+export default class EmojiReactionsBar extends ImmutablePureComponent {
 
   static propTypes = {
     status: ImmutablePropTypes.map.isRequired,
-    addReaction: PropTypes.func.isRequired,
-    removeReaction: PropTypes.func.isRequired,
+    addEmojiReaction: PropTypes.func.isRequired,
+    removeEmojiReaction: PropTypes.func.isRequired,
     emojiMap: ImmutablePropTypes.map.isRequired,
   };
 
@@ -77,12 +77,12 @@ export default class ReactionsBar extends ImmutablePureComponent {
 
   render () {
     const { status } = this.props;
-    const reactions = status.get("reactions")
-    const visibleReactions = reactions.filter(x => x.get('count') > 0);
+    const emoji_reactions = status.get("emoji_reactions")
+    const visibleReactions = emoji_reactions.filter(x => x.get('count') > 0);
 
-    const styles = visibleReactions.map(reaction => ({
-      key: reaction.get('name'),
-      data: reaction,
+    const styles = visibleReactions.map(emoji_reaction => ({
+      key: `${emoji_reaction.get('name')}@${emoji_reaction.get('domain', '')}`,
+      data: emoji_reaction,
       style: { scale: reduceMotion ? 1 : spring(1, { stiffness: 150, damping: 13 }) },
     })).toArray();
 
@@ -91,13 +91,13 @@ export default class ReactionsBar extends ImmutablePureComponent {
         {items => (
           <div className={classNames('reactions-bar', { 'reactions-bar--empty': visibleReactions.isEmpty() })}>
             {items.map(({ key, data, style }) => (
-              <Reaction
+              <EmojiReaction
                 key={key}
-                reaction={data}
+                emojiReaction={data}
                 style={{ transform: `scale(${style.scale})`, position: style.scale < 0.5 ? 'absolute' : 'static' }}
                 status={this.props.status}
-                addReaction={this.props.addReaction}
-                removeReaction={this.props.removeReaction}
+                addEmojiReaction={this.props.addEmojiReaction}
+                removeEmojiReaction={this.props.removeEmojiReaction}
                 emojiMap={this.props.emojiMap}
               />
             ))}

@@ -5,7 +5,7 @@ class REST::NotificationSerializer < ActiveModel::Serializer
 
   belongs_to :from_account, key: :account, serializer: REST::AccountSerializer
   belongs_to :target_status, key: :status, if: :status_type?, serializer: REST::StatusSerializer
-  belongs_to :emoji_reaction, key: :reaction, if: :emoji_reaction?
+  belongs_to :emoji_reaction, if: :emoji_reaction?
   attribute :reblog_visibility, if: :reblog?
 
   def id
@@ -24,7 +24,7 @@ class REST::NotificationSerializer < ActiveModel::Serializer
     object.type == :emoji_reaction
   end
 
-  class EmojiReactionSerializer < REST::ReactionSerializer
+  class EmojiReactionSerializer < REST::EmojiReactionSerializer
     attributes :me
 
     def me

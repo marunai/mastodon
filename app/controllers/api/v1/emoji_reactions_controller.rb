@@ -22,10 +22,16 @@ class Api::V1::EmojiReactionsController < Api::BaseController
   end
 
   def results
-    @_results ||= account_emoji_reactions.joins('INNER JOIN statuses ON statuses.deleted_at IS NULL AND statuses.id = emoji_reactions.status_id').to_a_paginated_by_id(
+    @_results ||= filtered_emoji_reactions.joins('INNER JOIN statuses ON statuses.deleted_at IS NULL AND statuses.id = emoji_reactions.status_id').to_a_paginated_by_id(
       limit_param(DEFAULT_STATUSES_LIMIT),
       params_slice(:max_id, :since_id, :min_id)
     )
+  end
+
+  def filtered_emoji_reactions
+    account_emoji_reactions.tap do |emoji_reactions|
+      emoji_reactions.merge!(emojis_scope) if emojis_requested?
+    end
   end
 
   def account_emoji_reactions
@@ -56,7 +62,28 @@ class Api::V1::EmojiReactionsController < Api::BaseController
     results.size == limit_param(DEFAULT_STATUSES_LIMIT)
   end
 
+  def emojis_requested?
+    emoji_reactions_params[:emojis].present?
+  end
+
+  def emojis_scope
+    emoji_reactions = EmojiReaction.none
+
+    emoji_reactions_params[:emojis].each do |emoji|
+      shortcode, domain = emoji.split("@")
+      custom_emoji = CustomEmoji.find_by(shortcode: shortcode, domain: domain)
+
+      emoji_reactions = emoji_reactions.or(EmojiReaction.where(name: shortcode, custom_emoji: custom_emoji))
+    end
+
+    emoji_reactions
+  end
+
   def pagination_params(core_params)
     params.slice(:limit).permit(:limit).merge(core_params)
+  end
+
+  def emoji_reactions_params
+    params.permit(emojis: [])
   end
 end

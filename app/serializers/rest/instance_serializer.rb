@@ -69,6 +69,12 @@ class REST::InstanceSerializer < ActiveModel::Serializer
     Setting.min_invite_role == 'user'
   end
 
+  def fedibird_capabilities
+    [
+      :emoji_reaction,
+    ]
+  end
+
   private
 
   def instance_presenter

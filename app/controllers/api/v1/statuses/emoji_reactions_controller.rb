@@ -8,13 +8,13 @@ class Api::V1::Statuses::EmojiReactionsController < Api::BaseController
   before_action :set_status
 
   def update
-    ReactionService.new.call(current_account, @status, params[:id])
+    EmojiReactionService.new.call(current_account, @status, params[:id])
     render json: @status, serializer: REST::StatusSerializer
   end
 
   def destroy
-    # UnreactionWorker.perform_async(current_account.id, @status.id, params[:id])
-    UnreactionService.new.call(current_account, @status)
+    #UnEmojiReactionWorker.perform_async(current_account.id, @status.id)
+    UnEmojiReactionService.new.call(current_account, @status)
 
     render json: @status, serializer: REST::StatusSerializer, relationships: StatusRelationshipsPresenter.new([@status], current_account.id, emoji_reactions_map: { @status.id => false })
   end

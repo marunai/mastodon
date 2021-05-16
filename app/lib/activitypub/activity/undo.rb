@@ -114,7 +114,7 @@ class ActivityPub::Activity::Undo < ActivityPub::Activity
     shortcode = @object['_misskey_reaction']&.delete(':')
 
     if shortcode.present?
-      emoji_tag = @object['tag']&.first
+      emoji_tag = @object['tag'].is_a?(Array) ? @object['tag']&.first : @object['tag']
 
       if emoji_tag.present? && emoji_tag['id'].present?
         emoji = CustomEmoji.find_by(shortcode: shortcode, domain: @account.domain)

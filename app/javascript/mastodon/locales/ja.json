@@ -219,6 +219,7 @@
   "keyboard_shortcuts.description": "説明",
   "keyboard_shortcuts.direct": "ダイレクトメッセージのカラムを開く",
   "keyboard_shortcuts.down": "カラム内一つ下に移動",
+  "keyboard_shortcuts.emoji_reaction": "絵文字リアクションのリストを開く",
   "keyboard_shortcuts.enter": "投稿の詳細を表示",
   "keyboard_shortcuts.favourite": "お気に入り",
   "keyboard_shortcuts.favourites": "お気に入り登録のリストを開く",

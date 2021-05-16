@@ -80,8 +80,8 @@ class StatusActionBar extends ImmutablePureComponent {
     withDismiss: PropTypes.bool,
     scrollKey: PropTypes.string,
     intl: PropTypes.object.isRequired,
-    addReaction: PropTypes.func,
-    removeReaction: PropTypes.func,
+    addEmojiReaction: PropTypes.func,
+    removeEmojiReaction: PropTypes.func,
   };
 
   // Avoid checking props that are functions (and whose equality will always
@@ -225,13 +225,13 @@ class StatusActionBar extends ImmutablePureComponent {
   }
 
   handleEmojiPick = data => {
-    const { addReaction, status } = this.props;
-    addReaction(status, data.native.replace(/:/g, ''), '');
+    const { addEmojiReaction, status } = this.props;
+    addEmojiReaction(status, data.native.replace(/:/g, ''), null, null, null);
   }
 
   handleEmojiRemove = () => {
-    const { removeReaction, status } = this.props;
-    removeReaction(status);
+    const { removeEmojiReaction, status } = this.props;
+    removeEmojiReaction(status);
   }
 
   render () {

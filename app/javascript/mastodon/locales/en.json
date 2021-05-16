@@ -219,6 +219,7 @@
   "keyboard_shortcuts.description": "Description",
   "keyboard_shortcuts.direct": "Open direct messages column",
   "keyboard_shortcuts.down": "Move down in the list",
+  "keyboard_shortcuts.emoji_reaction": "Open emoji reactions list",
   "keyboard_shortcuts.enter": "Open post",
   "keyboard_shortcuts.favourite": "Favourite post",
   "keyboard_shortcuts.favourites": "Open favourites list",

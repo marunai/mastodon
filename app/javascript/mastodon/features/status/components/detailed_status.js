@@ -15,7 +15,7 @@ import scheduleIdleTask from '../../ui/util/schedule_idle_task';
 import classNames from 'classnames';
 import Icon from 'mastodon/components/icon';
 import AnimatedNumber from 'mastodon/components/animated_number';
-import ReactionsBar from 'mastodon/components/reactions_bar';
+import EmojiReactionsBar from 'mastodon/components/emoji_reactions_bar';
 import PictureInPicturePlaceholder from 'mastodon/components/picture_in_picture_placeholder';
 import { enableReaction } from 'mastodon/initial_state';
 
@@ -49,8 +49,8 @@ class DetailedStatus extends ImmutablePureComponent {
     }),
     onToggleMediaVisibility: PropTypes.func,
     emojiMap: ImmutablePropTypes.map,
-    addReaction: PropTypes.func.isRequired,
-    removeReaction: PropTypes.func.isRequired,
+    addEmojiReaction: PropTypes.func.isRequired,
+    removeEmojiReaction: PropTypes.func.isRequired,
   };
 
   state = {
@@ -125,7 +125,7 @@ class DetailedStatus extends ImmutablePureComponent {
 
     const reblogsCount = status.get('reblogs_count');
     const favouritesCount = status.get('favourites_count');
-    const emojiReactionsCount = status.get('reactions').reduce( (accumulator, reaction) => accumulator + reaction.get('count'), 0 );
+    const emojiReactionsCount = status.get('emoji_reactions').reduce( (accumulator, reaction) => accumulator + reaction.get('count'), 0 );
 
     if (this.props.measureHeight) {
       outerStyle.height = `${this.state.height}px`;
@@ -279,10 +279,10 @@ class DetailedStatus extends ImmutablePureComponent {
 
           {media}
 
-          {enableReaction && <ReactionsBar
+          {enableReaction && <EmojiReactionsBar
             status={status}
-            addReaction={this.props.addReaction}
-            removeReaction={this.props.removeReaction}
+            addEmojiReaction={this.props.addEmojiReaction}
+            removeEmojiReaction={this.props.removeEmojiReaction}
             emojiMap={this.props.emojiMap}
           />}
 

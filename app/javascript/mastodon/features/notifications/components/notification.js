@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import ImmutablePropTypes from 'react-immutable-proptypes';
 import { injectIntl, FormattedMessage, defineMessages } from 'react-intl';
 import { HotKeys } from 'react-hotkeys';
@@ -317,12 +317,16 @@ class Notification extends ImmutablePureComponent {
   renderReaction (notification, link) {
     const { intl, unread, emojiMap } = this.props;
 
+    if (!notification.get('emoji_reaction')) {
+      return <Fragment></Fragment>
+    }
+
     return (
       <HotKeys handlers={this.getHandlers()}>
         <div className={classNames('notification notification-reaction focusable', { unread })} tabIndex='0' aria-label={notificationForScreenReader(intl, intl.formatMessage(messages.emoji_reaction, { name: notification.getIn(['account', 'acct']) }), notification.get('created_at'))}>
           <div className='notification__message'>
             <div className='notification__favourite-icon-wrapper'>
-              <Emoji hovered={false} emoji={notification.getIn(['reaction', 'name'])} emojiMap={emojiMap} url={notification.getIn(['reaction', 'url'])} static_url={notification.getIn(['reaction', 'static_url'])} />
+              <Emoji hovered={false} emoji={notification.getIn(['emoji_reaction', 'name'])} emojiMap={emojiMap} url={notification.getIn(['emoji_reaction', 'url'])} static_url={notification.getIn(['emoji_reaction', 'static_url'])} />
             </div>
 
             <span title={notification.get('created_at')}>
@@ -372,6 +376,6 @@ class Notification extends ImmutablePureComponent {
     }
 
     return null;
-  }
+  };
 
 }
