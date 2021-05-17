@@ -33,7 +33,18 @@ Paperclip::Attachment.default_options.merge!(
   storage: :fog
 )
 
-if ENV['S3_ENABLED'] == 'true'
+if ENV['GCS_ENABLED'] == 'true'
+  require 'paperclip-gcs'
+
+  Paperclip::Attachment.default_options.merge!(
+    storage: :gcs,
+    gcs_bucket: ENV['GCS_BUCKET'],
+    gcs_credentials: {
+      project: ENV["GCS_PROJECT"],
+      keyfile: ENV["GCS_KEYFILE"]
+    }
+  )
+elsif ENV['S3_ENABLED'] == 'true'
   require 'aws-sdk-s3'
 
   s3_region   = ENV.fetch('S3_REGION')   { 'us-east-1' }
