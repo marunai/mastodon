@@ -404,12 +404,8 @@
   "status.muted_quote": "ミュートされた引用",
   "status.open": "詳細を表示",
   "status.pin": "プロフィールに固定表示",
-<<<<<<< HEAD
   "status.pinned": "固定された投稿",
   "status.read_more": "もっと見る",
-=======
-  "status.pinned": "固定されたトゥート",
->>>>>>> 8402b7063... Fix to hide mute and blocked quotes
   "status.quote": "引用",
   "status.read_more": "もっと見る",
   "status.reblog": "ブースト",
