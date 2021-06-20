@@ -267,8 +267,6 @@ const mapDispatchToProps = (dispatch, { intl }) => ({
   removeReaction (status, name, domain) {
     dispatch(removereaction(status, name, domain));
   },
-
->>>>>>> dae758b59... add emoji-reaction frontend
 });
 
 export default injectIntl(connect(makeMapStateToProps, mapDispatchToProps)(Status));
