@@ -1009,14 +1009,8 @@ ActiveRecord::Schema.define(version: 2021_05_26_193025) do
   add_foreign_key "emoji_reactions", "accounts", on_delete: :cascade
   add_foreign_key "emoji_reactions", "custom_emojis", on_delete: :cascade
   add_foreign_key "emoji_reactions", "statuses", on_delete: :cascade
-<<<<<<< HEAD
-=======
   add_foreign_key "encrypted_messages", "accounts", column: "from_account_id", on_delete: :cascade
   add_foreign_key "encrypted_messages", "devices", on_delete: :cascade
-  add_foreign_key "favourite_domains", "accounts", on_delete: :cascade
-  add_foreign_key "favourite_tags", "accounts", on_delete: :cascade
-  add_foreign_key "favourite_tags", "tags", on_delete: :cascade
->>>>>>> ff26068d4... fixup! react-nightly
   add_foreign_key "favourites", "accounts", name: "fk_5eb6c2b873", on_delete: :cascade
   add_foreign_key "favourites", "statuses", name: "fk_b0e856845e", on_delete: :cascade
   add_foreign_key "featured_tags", "accounts", on_delete: :cascade
