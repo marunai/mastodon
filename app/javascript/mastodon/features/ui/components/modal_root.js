@@ -20,6 +20,7 @@ import {
   ListEditor,
   ListAdder,
 } from '../../../features/ui/util/async-components';
+import ReactionModal from './reaction_modal';
 
 const MODAL_COMPONENTS = {
   'MEDIA': () => Promise.resolve({ default: MediaModal }),
@@ -35,6 +36,7 @@ const MODAL_COMPONENTS = {
   'LIST_EDITOR': ListEditor,
   'FOCAL_POINT': () => Promise.resolve({ default: FocalPointModal }),
   'LIST_ADDER':ListAdder,
+  'REACTION': () => Promise.resolve({ default: ReactionModal }),
 };
 
 export default class ModalRoot extends React.PureComponent {
@@ -68,7 +70,7 @@ export default class ModalRoot extends React.PureComponent {
   }
 
   renderLoading = modalId => () => {
-    return ['MEDIA', 'VIDEO', 'BOOST', 'CONFIRM', 'ACTIONS'].indexOf(modalId) === -1 ? <ModalLoading /> : null;
+    return ['MEDIA', 'VIDEO', 'BOOST', 'CONFIRM', 'ACTIONS', 'REACTON'].indexOf(modalId) === -1 ? <ModalLoading /> : null;
   }
 
   renderError = (props) => {

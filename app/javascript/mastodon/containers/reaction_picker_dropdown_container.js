@@ -1,5 +1,10 @@
+import { openDropdownMenu, closeDropdownMenu } from '../actions/dropdown_menu';
+import { fetchRelationships } from 'mastodon/actions/accounts';
+import { openModal, closeModal } from '../actions/modal';
 import { connect } from 'react-redux';
 import ReactionPickerDropdown from '../components/reaction_picker_dropdown';
+import { isUserTouching } from '../is_mobile';
+
 import { changeSetting } from '../actions/settings';
 import { createSelector } from 'reselect';
 import { Map as ImmutableMap } from 'immutable';
@@ -60,14 +65,20 @@ const getCustomEmojis = createSelector([
   }
 }));
 
+const getState = (dispatch) => new Promise((resolve) => {
+  dispatch((dispatch, getState) => {resolve(getState())})
+})
+
 const mapStateToProps = state => ({
   custom_emojis: getCustomEmojis(state),
   skinTone: state.getIn(['settings', 'skinTone']),
   frequentlyUsedEmojis: getFrequentlyUsedEmojis(state),
-  dropdownPlacement: 'bottom',
+  dropdownPlacement: state.getIn(['dropdown_menu', 'placement']),
+  openDropdownId: state.getIn(['dropdown_menu', 'openId']),
+  openedViaKeyboard: state.getIn(['dropdown_menu', 'keyboard']),
 });
 
-const mapDispatchToProps = (dispatch, { onPickEmoji }) => ({
+const mapDispatchToProps = (dispatch, { status, onPickEmoji, scrollKey }) => ({
   onSkinTone: skinTone => {
     dispatch(changeSetting(['skinTone'], skinTone));
   },
@@ -78,6 +89,28 @@ const mapDispatchToProps = (dispatch, { onPickEmoji }) => ({
     if (onPickEmoji) {
       onPickEmoji(emoji);
     }
+  },
+  
+  onOpen(id, dropdownPlacement, keyboard) {
+    dispatch((_, getState) => {
+      let state = getState();
+      if (status) {
+        dispatch(fetchRelationships([status.getIn(['account', 'id'])]));
+      }
+
+      dispatch(isUserTouching() ? openModal('REACTION', {
+        status: status,
+        onPickEmoji: onPickEmoji,
+        custom_emojis: getCustomEmojis(state),
+        skinTone: state.getIn(['settings', 'skinTone']),
+        frequentlyUsedEmojis: getFrequentlyUsedEmojis(state),
+      }) : openDropdownMenu(id, dropdownPlacement, keyboard, scrollKey));
+    });
+  },
+
+  onClose(id) {
+    dispatch(closeModal('REACTION'));
+    dispatch(closeDropdownMenu(id));
   },
 });
 
